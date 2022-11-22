@@ -5,11 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,15 +25,14 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.identity.BeginSignInRequest;
+import com.google.android.gms.auth.api.identity.BeginSignInResult;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.SignInClient;
+import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -57,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private Button mainButton;
 
     // Google
-    private GoogleSignInClient googleSignInClient;
+    private SignInClient oneTapClient;
+    private BeginSignInRequest signInRequest;
 
     // Firebase
     private FirebaseRemoteConfig firebaseRemoteConfig;
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
 
     // int
-    private final int GOOGLE_SIGN_IN_REQUEST_CODE = 1;
+    private static final int REQ_ONE_TAP = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,12 +87,16 @@ public class MainActivity extends AppCompatActivity {
         mainButton = findViewById(R.id.main_button);
 
         // Google
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.google_web_client_id))
-                .requestEmail()
+        oneTapClient = Identity.getSignInClient(this);
+        signInRequest = BeginSignInRequest.builder()
+                .setPasswordRequestOptions(BeginSignInRequest.PasswordRequestOptions.builder()
+                        .setSupported(true)
+                        .build())
+                .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                        .setSupported(true)
+                        .setServerClientId(getString(R.string.default_web_client_id))
+                        .build())
                 .build();
-
-        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
 
         // Firebase
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
@@ -209,8 +213,27 @@ public class MainActivity extends AppCompatActivity {
 
         if (firebaseUser == null) {
 
-            Intent signInIntent = googleSignInClient.getSignInIntent();
-            startActivityForResult(signInIntent, GOOGLE_SIGN_IN_REQUEST_CODE);
+            oneTapClient.beginSignIn(signInRequest)
+                    .addOnSuccessListener(new OnSuccessListener<BeginSignInResult>() {
+                        @Override
+                        public void onSuccess(BeginSignInResult beginSignInResult) {
+
+                            try {
+                                startIntentSenderForResult(beginSignInResult.getPendingIntent().getIntentSender(), REQ_ONE_TAP, null, 0, 0, 0);
+                            } catch (IntentSender.SendIntentException e) {
+                                Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                            Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
 
         } else {
 
@@ -307,12 +330,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
+        if (requestCode == REQ_ONE_TAP) {
 
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthGoogleSignIn(account.getIdToken(), account.getDisplayName(), account.getEmail(), account.getPhotoUrl());
+                SignInCredential credential = oneTapClient.getSignInCredentialFromIntent(data);
+                String idToken = credential.getGoogleIdToken();
+                if (idToken != null) {
+                    firebaseAuthGoogleSignIn(idToken, credential.getDisplayName(), credential.getId(), credential.getProfilePictureUri());
+                }
             } catch (ApiException e) {
 
                 mainProgressBar.setVisibility(View.GONE);

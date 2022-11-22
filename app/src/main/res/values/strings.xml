@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Ensan7ayawanShay2</string>
-	<string name="google_web_client_id">621729333388-v84l9tebd4m3987u2llq8ehdjs0hahk6.apps.googleusercontent.com</string>
+	<string name="google_web_client_id">318793986604-2rt0nn2rag4rm9k7nihvk6ubbg1kl64f.apps.googleusercontent.com</string>
     <string name="google_sign_in_failed">Google sign in failed</string>
     <string name="sign_in_error">Sign in error</string>
     <string name="try_again">Try again</string>
