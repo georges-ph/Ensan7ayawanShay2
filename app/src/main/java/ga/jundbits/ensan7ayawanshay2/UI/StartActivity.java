@@ -5,22 +5,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.ads.AdView;
-import com.google.firebase.Timestamp;
-
-import java.util.concurrent.TimeUnit;
 
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
-import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 
-public class StartActivity extends UserOnlineActivity {
+public class StartActivity extends AppCompatActivity {
 
     // UI
     private Toolbar startToolbar;
@@ -64,37 +61,15 @@ public class StartActivity extends UserOnlineActivity {
 
     private void setOnClicks() {
 
-        startCreateRoomButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                createRoom();
-
-            }
-        });
-
-        startJoinRoomButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                joinRoom();
-
-            }
-        });
+        startCreateRoomButton.setOnClickListener(v -> createRoom());
+        startJoinRoomButton.setOnClickListener(v -> joinRoom());
 
     }
 
     private void createRoom() {
 
-        Timestamp timestamp = Timestamp.now();
-        long timestampSeconds = timestamp.getSeconds();
-        long timestampNanoSeconds = timestamp.getNanoseconds();
-        long timestampSecondsToMillis = TimeUnit.SECONDS.toMillis(timestampSeconds);
-        long timestampNanoSecondsToMillis = TimeUnit.NANOSECONDS.toMillis(timestampNanoSeconds);
-        final long timestampTotalMillis = timestampSecondsToMillis + timestampNanoSecondsToMillis;
-
         Intent usersIntent = new Intent(this, UsersActivity.class);
-        usersIntent.putExtra("timestamp_total_millis", timestampTotalMillis);
+        usersIntent.putExtra("timestamp_millis", HelperMethods.getCurrentTimestamp());
         startActivity(usersIntent);
 
     }
@@ -142,5 +117,16 @@ public class StartActivity extends UserOnlineActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        HelperMethods.setCurrentUserOnline(this, true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        HelperMethods.setCurrentUserOnline(this, false);
+    }
 
 }

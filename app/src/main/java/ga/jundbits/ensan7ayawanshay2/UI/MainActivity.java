@@ -6,7 +6,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,18 +32,19 @@ import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
 
     // int
-    private static final int REQ_ONE_TAP = 2;
+    private static final int REQ_CODE_ONE_TAP = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         firebaseUser = firebaseAuth.getCurrentUser();
 
         FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(600) // 10 minutes
+                .setMinimumFetchIntervalInSeconds(60 * 10) // 10 minutes
                 .build();
         firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
         firebaseRemoteConfig.setDefaultsAsync(R.xml.firebase_remote_config_defaults);
@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         fetchRemoteConfig();
 
+        // TODO: migrating to helper methods separately
         new FirebaseHelper(this);
 
         MobileAds.initialize(this);
@@ -211,7 +212,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkIfSignedIn() {
 
-        if (firebaseUser == null) {
+        if (firebaseUser != null) {
+            goToStart();
+        } else {
 
             oneTapClient.beginSignIn(signInRequest)
                     .addOnSuccessListener(new OnSuccessListener<BeginSignInResult>() {
@@ -219,9 +222,30 @@ public class MainActivity extends AppCompatActivity {
                         public void onSuccess(BeginSignInResult beginSignInResult) {
 
                             try {
-                                startIntentSenderForResult(beginSignInResult.getPendingIntent().getIntentSender(), REQ_ONE_TAP, null, 0, 0, 0);
+                                startIntentSenderForResult(beginSignInResult.getPendingIntent().getIntentSender(), REQ_CODE_ONE_TAP, null, 0, 0, 0);
                             } catch (IntentSender.SendIntentException e) {
+
+                                mainProgressBar.setVisibility(View.GONE);
+                                mainButton.setEnabled(true);
+
+                                // TODO: this should be shown on the console after few hours
+                                //  I think I should find an alternative to log events in real time
+                                // from here
+                                String stackTrace = "";
+
+                                for (int i = 0; i < e.getStackTrace().length; i++) {
+                                    stackTrace += e.getStackTrace()[i] + "\n";
+                                }
+
+                                Bundle bundle = new Bundle();
+                                bundle.putString("exception_message", e.getMessage());
+                                bundle.putString("stack_trace", stackTrace);
+
+                                FirebaseAnalytics.getInstance(getApplicationContext()).logEvent("app_error", bundle);
+                                // to here
+
                                 Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
                             }
 
                         }
@@ -230,76 +254,15 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
 
-                            Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                            mainProgressBar.setVisibility(View.GONE);
+                            mainButton.setEnabled(true);
+
+                            Toast.makeText(MainActivity.this, "No accounts found on this device", Toast.LENGTH_SHORT).show();
 
                         }
                     });
 
-        } else {
-
-            goToStart();
-
         }
-
-    }
-
-    private void firebaseAuthGoogleSignIn(String idToken, String name, String email, Uri
-            imageUri) {
-
-        AuthCredential authCredential = GoogleAuthProvider.getCredential(idToken, null);
-        firebaseAuth.signInWithCredential(authCredential)
-                .addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
-                    @Override
-                    public void onSuccess(AuthResult authResult) {
-
-                        firebaseUser = authResult.getUser();
-                        registerWithFirebase(firebaseUser.getUid(), name, email, String.valueOf(imageUri));
-
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                        mainProgressBar.setVisibility(View.GONE);
-                        mainButton.setEnabled(true);
-
-                        Toast.makeText(MainActivity.this, getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
-    }
-
-    private void registerWithFirebase(String userID, String name, String email, String image) {
-
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", userID);
-        userMap.put("name", name);
-        userMap.put("email", email);
-        userMap.put("image", image);
-        userMap.put("online", true);
-
-        FirebaseHelper.usersCollection.document(userID)
-                .set(userMap)
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        loadData();
-                        mainButton.performClick();
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                        mainProgressBar.setVisibility(View.GONE);
-                        mainButton.setEnabled(true);
-
-                        Toast.makeText(MainActivity.this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
-
-                    }
-                });
 
     }
 
@@ -326,17 +289,101 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void firebaseAuthGoogleSignIn(SignInCredential credential) {
+
+        AuthCredential authCredential = GoogleAuthProvider.getCredential(credential.getGoogleIdToken(), null);
+        firebaseAuth.signInWithCredential(authCredential)
+                .addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+
+                        firebaseUser = authResult.getUser();
+                        registerWithFirebase(credential);
+
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        mainProgressBar.setVisibility(View.GONE);
+                        mainButton.setEnabled(true);
+
+                        Toast.makeText(MainActivity.this, getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+
+    }
+
+    private void registerWithFirebase(SignInCredential credential) {
+
+        String userID = firebaseUser.getUid();
+
+        UsersModel usersModel = new UsersModel(userID, credential.getDisplayName(), credential.getId(), String.valueOf(credential.getProfilePictureUri()), true);
+
+        HelperMethods.getUserDocument(this, userID)
+                .get()
+                .addOnSuccessListener(this, new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                        if (documentSnapshot.exists()) {
+
+                            mainButton.performClick();
+
+                        } else {
+
+                            HelperMethods.getUserDocument(MainActivity.this, userID)
+                                    .set(usersModel)
+                                    .addOnSuccessListener(MainActivity.this, new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+
+                                            mainButton.performClick();
+
+                                        }
+                                    })
+                                    .addOnFailureListener(MainActivity.this, new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+
+                                            mainProgressBar.setVisibility(View.GONE);
+                                            mainButton.setEnabled(true);
+
+                                            Toast.makeText(MainActivity.this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
+
+                                        }
+                                    });
+
+                        }
+
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        mainProgressBar.setVisibility(View.GONE);
+                        mainButton.setEnabled(true);
+
+                        Toast.makeText(MainActivity.this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQ_ONE_TAP) {
+        if (requestCode == REQ_CODE_ONE_TAP) {
 
             try {
                 SignInCredential credential = oneTapClient.getSignInCredentialFromIntent(data);
-                String idToken = credential.getGoogleIdToken();
-                if (idToken != null) {
-                    firebaseAuthGoogleSignIn(idToken, credential.getDisplayName(), credential.getId(), credential.getProfilePictureUri());
+                if (credential.getGoogleIdToken() != null) {
+                    firebaseAuthGoogleSignIn(credential);
                 }
             } catch (ApiException e) {
 
