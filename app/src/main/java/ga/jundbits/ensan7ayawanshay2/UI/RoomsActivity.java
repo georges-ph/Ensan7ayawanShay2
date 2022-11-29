@@ -9,18 +9,20 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 import ga.jundbits.ensan7ayawanshay2.Adapters.RoomsRecyclerAdapter;
 import ga.jundbits.ensan7ayawanshay2.Models.RoomsModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
-import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
-import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 
-public class RoomsActivity extends UserOnlineActivity {
+public class RoomsActivity extends AppCompatActivity{
 
     // UI
     private Toolbar roomsToolbar;
@@ -60,20 +62,27 @@ public class RoomsActivity extends UserOnlineActivity {
 
     private void loadRooms() {
 
-        Query roomsQuery = FirebaseHelper.appDocument.collection("Rooms").whereArrayContains("players", FirebaseHelper.currentUserID);
+        Query roomsQuery = HelperMethods.roomsCollectionRef(this).whereArrayContains("players", HelperMethods.getCurrentUserID());
+        roomsQuery.get()
+                .addOnSuccessListener(this, new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
-        FirestoreRecyclerOptions<RoomsModel> options = new FirestoreRecyclerOptions.Builder<RoomsModel>()
-                .setLifecycleOwner(this)
-                .setQuery(roomsQuery, RoomsModel.class)
-                .build();
+                        if (queryDocumentSnapshots.isEmpty())
+                            return;
 
-        RoomsRecyclerAdapter roomsRecyclerAdapter = new RoomsRecyclerAdapter(options, this);
+                        List<RoomsModel> roomsList = queryDocumentSnapshots.toObjects(RoomsModel.class);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setReverseLayout(true);
-        linearLayoutManager.setStackFromEnd(true);
-        roomsRecyclerView.setLayoutManager(linearLayoutManager);
-        roomsRecyclerView.setAdapter(roomsRecyclerAdapter);
+                        RoomsRecyclerAdapter roomsRecyclerAdapter = new RoomsRecyclerAdapter(RoomsActivity.this, roomsList);
+
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RoomsActivity.this);
+                        linearLayoutManager.setReverseLayout(true);
+                        linearLayoutManager.setStackFromEnd(true);
+                        roomsRecyclerView.setLayoutManager(linearLayoutManager);
+                        roomsRecyclerView.setAdapter(roomsRecyclerAdapter);
+
+                    }
+                });
 
     }
 
