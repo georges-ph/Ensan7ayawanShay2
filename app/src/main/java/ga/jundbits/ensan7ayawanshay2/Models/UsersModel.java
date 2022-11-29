@@ -2,18 +2,19 @@ package ga.jundbits.ensan7ayawanshay2.Models;
 
 public class UsersModel {
 
-    private String id, name, email, image;
+    private String id, name, email, image, token;
     private boolean online;
 
     public UsersModel() {
 
     }
 
-    public UsersModel(String id, String name, String email, String image, boolean online) {
+    public UsersModel(String id, String name, String email, String image, String token, boolean online) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.image = image;
+        this.token = token;
         this.online = online;
     }
 
@@ -49,6 +50,14 @@ public class UsersModel {
         this.image = image;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public boolean isOnline() {
         return online;
     }
@@ -56,4 +65,5 @@ public class UsersModel {
     public void setOnline(boolean online) {
         this.online = online;
     }
+
 }

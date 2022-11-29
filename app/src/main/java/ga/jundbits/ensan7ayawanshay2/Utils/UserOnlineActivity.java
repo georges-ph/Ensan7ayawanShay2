@@ -8,7 +8,7 @@ public class UserOnlineActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        FirebaseHelper.setOnline(false);
+//        FirebaseHelper.setOnline(false);
 
     }
 
@@ -16,7 +16,7 @@ public class UserOnlineActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        FirebaseHelper.setOnline(true);
+//        FirebaseHelper.setOnline(true);
 
     }
 

@@ -1,37 +1,40 @@
 package ga.jundbits.ensan7ayawanshay2.UI;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.List;
 
 import ga.jundbits.ensan7ayawanshay2.Adapters.UsersRecyclerAdapter;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
-import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
-import ga.jundbits.ensan7ayawanshay2.Utils.SingletonRequestQueue;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
 public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAdapter.Callback {
 
@@ -44,10 +47,9 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
     private long timestampTotalMillis;
 
     // String
+    // still using legacy http method and not http v1 api cause didn't know how to make it work
     private String FCM_API_URL = "https://fcm.googleapis.com/fcm/send";
-    private String serverKey = "key=" + "AAAAkMH0wIw:APA91bHeisXwbFx_KFlEc-n1mIaIeEAy-QQloTnVfPETjK1uk0x8lfcviiSEUM7VtjGzeL03EeDokxvOGhXjKTJSa723exN-AnsYxMZPmjKeqN1Pi-tu2zWTxVDBoIfLgMji9Ljq4IWo";
-    private String contentType = "application/json";
-    private String topicName, notificationTitle, notificationMessage;
+    private String serverKey = "AAAASjmaMiw:APA91bEum4z2usH6gddBuf4bxeRdDR18-HNFtASmIUfGlVrgd_2dAqDlWAaFgvYNsb414lcyGJaiwvMTLix6lVagXtsuOcBlxES7ZU-yq5x4J9Ms2JLoqvdxHG_aOy1o72-sXwbIKmI_";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
         AdMob.requestBannerAd(usersAdView);
 
         // long
-        timestampTotalMillis = getIntent().getLongExtra("timestamp_total_millis", 0);
+        timestampTotalMillis = getIntent().getLongExtra("timestamp_millis", 0);
 
     }
 
@@ -85,126 +87,177 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
 
     private void loadUsers() {
 
-        Query usersQuery = FirebaseHelper.usersCollection.orderBy("name", Query.Direction.ASCENDING);
-
-        FirestoreRecyclerOptions<UsersModel> options = new FirestoreRecyclerOptions.Builder<UsersModel>()
-                .setLifecycleOwner(this)
-                .setQuery(usersQuery, UsersModel.class)
-                .build();
-
-        UsersRecyclerAdapter adapter = new UsersRecyclerAdapter(options, this, this, timestampTotalMillis);
-
-        usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        usersRecyclerView.setAdapter(adapter);
-
-    }
-
-    @Override
-    public void sendInvitation(String userID, String name, long timestampTotalMillis) {
-
-        topicName = "/topics/GamesInvitations_" + userID;
-        notificationTitle = getString(R.string.new_game_invitation);
-        notificationMessage = name + " " + getString(R.string.invited_you_to_a_game);
-
-        JSONObject notification = new JSONObject();
-        JSONObject notificationBody = new JSONObject();
-
-        try {
-
-            notificationBody.put("title", notificationTitle);
-            notificationBody.put("message", notificationMessage);
-            notificationBody.put("content", timestampTotalMillis);
-
-            notification.put("to", topicName);
-            notification.put("data", notificationBody);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        sendNotification(notification);
-
-        Map<String, Integer> scoresMap = new HashMap<>();
-        scoresMap.put(FirebaseHelper.currentUserID, 0);
-
-        Map<String, Object> roomMap = new HashMap<>();
-        roomMap.put("players", FieldValue.arrayUnion(FirebaseHelper.currentUserID));
-        roomMap.put("scores", scoresMap);
-        roomMap.put("started", false);
-        roomMap.put("first_start", true);
-        roomMap.put("letter", "A");
-        roomMap.put("timestamp_millis", timestampTotalMillis);
-
-        FirebaseHelper.appDocument
-                .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-                .get()
-                .addOnSuccessListener(this, new OnSuccessListener<DocumentSnapshot>() {
+        Query usersQuery = HelperMethods.usersCollectionRef(this).orderBy("name", Query.Direction.ASCENDING);
+        usersQuery.get()
+                .addOnSuccessListener(this, new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
-                        if (documentSnapshot.exists()) {
+                        if (queryDocumentSnapshots.isEmpty())
+                            return;
 
-                            FirebaseHelper.appDocument
-                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-                                    .update(
-                                            "players", FieldValue.arrayUnion(userID),
-                                            "scores." + userID, 0
-                                    );
+                        List<UsersModel> usersList = queryDocumentSnapshots.toObjects(UsersModel.class);
 
-                        } else {
+                        UsersRecyclerAdapter adapter = new UsersRecyclerAdapter(UsersActivity.this, usersList, UsersActivity.this);
 
-                            FirebaseHelper.appDocument
-                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-                                    .set(roomMap)
-                                    .addOnSuccessListener(UsersActivity.this, new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
+                        usersRecyclerView.setLayoutManager(new LinearLayoutManager(UsersActivity.this));
+                        usersRecyclerView.setAdapter(adapter);
 
-                                            FirebaseHelper.appDocument
-                                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-                                                    .update(
-                                                            "players", FieldValue.arrayUnion(userID),
-                                                            "scores." + userID, 0
-                                                    );
-
-                                        }
-                                    });
-
-                        }
-
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(UsersActivity.this, "Error getting users", Toast.LENGTH_SHORT).show();
                     }
                 });
 
     }
 
-    private void sendNotification(JSONObject notification) {
+    @Override
+    public void inviteUser(UsersModel usersModel) {
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API_URL, notification,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.new_game_invitation))
+                .setMessage(getString(R.string.invite) + " " + usersModel.getName() + " " + getString(R.string.to_a_new_room))
+                .setPositiveButton(getString(R.string.ok), (dialog, which) -> sendInvitation(usersModel))
+                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+                .show();
 
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+    }
 
-                    }
+    private void sendInvitation(UsersModel usersModel) {
+
+        String userID = usersModel.getId();
+        String name = usersModel.getName();
+
+        String notificationTitle = getString(R.string.new_game_invitation);
+        String notificationBody = HelperMethods.getCurrentUserModel().getName() + " " + getString(R.string.invited_you_to_a_game);
+
+        JSONObject notification = new JSONObject();
+        JSONObject data = new JSONObject();
+        JSONObject json = new JSONObject();
+
+        try {
+
+            /*
+            JSON format:
+                {
+                    "notification": {
+                        "body": "body",
+                        "title": "title"
+                    },
+                    "data":{
+                        "some_param": "some_value",
+                        // example
+                        "text": "Hello World!"
+                    },
+                    "to": "target_user_fcm_token"
                 }
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+             */
 
-                Map<String, String> params = new HashMap<>();
-                params.put("Authorization", serverKey);
-                params.put("Content-Type", contentType);
-                return params;
+            notification.put("title", notificationTitle);
+            notification.put("body", notificationBody);
+            data.put("invitation_id", timestampTotalMillis);
+            json.put("data", data);
+            json.put("notification", notification);
+            json.put("to", usersModel.getToken());
+
+        } catch (JSONException e) {
+            String st = "";
+            for (int i = 0; i < e.getStackTrace().length; i++) {
+                st += e.getStackTrace()[i];
+            }
+            Log.d("msggg", "exception: \nmessage: " + e.getMessage() + "\ncause: " + e.getCause() + "\nstacktrace: " + st);
+            return;
+        }
+
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json.toString());
+
+        okhttp3.Request request1 = new okhttp3.Request.Builder()
+                .url(FCM_API_URL)
+                .post(body)
+                .addHeader("Authorization", "key=" + serverKey)
+                // .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request1).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+                String st = "";
+                for (int i = 0; i < e.getStackTrace().length; i++) {
+                    st += e.getStackTrace()[i];
+                }
+                Log.d("msggg", "error: \nmessage: " + e.getMessage() + "\ncause: " + e.getCause() + "\nstacktrace: " + st);
+
 
             }
-        };
 
-        SingletonRequestQueue.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    Log.d("msggg", "response: " + responseBody.string());
+                }
+
+
+            }
+        });
+
+//        Map<String, Integer> scoresMap = new HashMap<>();
+//        scoresMap.put(FirebaseHelper.currentUserID, 0);
+//
+//        Map<String, Object> roomMap = new HashMap<>();
+//        roomMap.put("players", FieldValue.arrayUnion(FirebaseHelper.currentUserID));
+//        roomMap.put("scores", scoresMap);
+//        roomMap.put("started", false);
+//        roomMap.put("first_start", true);
+//        roomMap.put("letter", "A");
+//        roomMap.put("timestamp_millis", timestampTotalMillis);
+//
+//        FirebaseHelper.appDocument
+//                .collection("Rooms").document(String.valueOf(timestampTotalMillis))
+//                .get()
+//                .addOnSuccessListener(this, new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//
+//                        if (documentSnapshot.exists()) {
+//
+//                            FirebaseHelper.appDocument
+//                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
+//                                    .update(
+//                                            "players", FieldValue.arrayUnion(userID),
+//                                            "scores." + userID, 0
+//                                    );
+//
+//                        } else {
+//
+//                            FirebaseHelper.appDocument
+//                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
+//                                    .set(roomMap)
+//                                    .addOnSuccessListener(UsersActivity.this, new OnSuccessListener<Void>() {
+//                                        @Override
+//                                        public void onSuccess(Void aVoid) {
+//
+//                                            FirebaseHelper.appDocument
+//                                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
+//                                                    .update(
+//                                                            "players", FieldValue.arrayUnion(userID),
+//                                                            "scores." + userID, 0
+//                                                    );
+//
+//                                        }
+//                                    });
+//
+//                        }
+//
+//                    }
+//                });
 
     }
 

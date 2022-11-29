@@ -1,37 +1,55 @@
 package ga.jundbits.ensan7ayawanshay2.Utils;
 
 import android.app.Activity;
+import android.content.Context;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
+import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 
 public class HelperMethods {
 
-    private static String currentUserID = "";
+    private static RequestQueue requestQueue;
+    private static UsersModel currentUserModel;
 
-    public static DocumentReference getAppDocument(Activity activity) {
-        return FirebaseFirestore.getInstance().collection(activity.getString(R.string.app_name)).document("AppCollections");
+    public static UsersModel getCurrentUserModel() {
+        return currentUserModel;
     }
 
-    public static CollectionReference getUsersCollection(Activity activity) {
-        return getAppDocument(activity).collection("Users");
+    public static void setCurrentUserModel(UsersModel currentUserModel) {
+        HelperMethods.currentUserModel = currentUserModel;
     }
 
-    public static DocumentReference getUserDocument(Activity activity, String userID) {
-        return getUsersCollection(activity).document(userID);
+    public static String getCurrentUserID() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        return firebaseUser.getUid();
     }
 
-    public static void setCurrentUserOnline(Activity activity, boolean online) {
-        if (currentUserID.isEmpty())
-            currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        getUserDocument(activity, currentUserID).update("online", online);
+    public static DocumentReference appDocumentRef(Context context) {
+        return FirebaseFirestore.getInstance().collection(context.getString(R.string.app_name)).document("AppCollections");
+    }
+
+    public static CollectionReference usersCollectionRef(Context context) {
+        return appDocumentRef(context).collection("Users");
+    }
+
+    public static DocumentReference userDocumentRef(Context context, String userID) {
+        return usersCollectionRef(context).document(userID);
+    }
+
+    public static void setCurrentUserOnline(Context context, boolean online) {
+        userDocumentRef(context, getCurrentUserID()).update("online", online);
     }
 
     public static long getCurrentTimestamp() {
@@ -42,6 +60,15 @@ public class HelperMethods {
         long secondsToMillis = TimeUnit.SECONDS.toMillis(seconds);
         long nanoSecondsToMillis = TimeUnit.NANOSECONDS.toMillis(nanoseconds);
         return secondsToMillis + nanoSecondsToMillis;
+
+    }
+
+    public static <T> void addToRequestQueue(Context context, Request<T> request) {
+
+        if (requestQueue == null)
+            requestQueue = Volley.newRequestQueue(context);
+
+        requestQueue.add(request);
 
     }
 

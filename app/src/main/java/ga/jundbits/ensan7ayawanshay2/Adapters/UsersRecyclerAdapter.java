@@ -1,8 +1,6 @@
 package ga.jundbits.ensan7ayawanshay2.Adapters;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,29 +11,28 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 
-public class UsersRecyclerAdapter extends FirestoreRecyclerAdapter<UsersModel, UsersRecyclerAdapter.UsersViewHolder> {
+public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.UsersViewHolder> {
 
     private Context context;
+    private List<UsersModel> usersList;
     private Callback callback;
-    private long timestampTotalMillis;
 
     public interface Callback {
-        void sendInvitation(String userID, String name, long timestampTotalMillis);
+        void inviteUser(UsersModel usersModel);
     }
 
-    public UsersRecyclerAdapter(@NonNull FirestoreRecyclerOptions<UsersModel> options, Context context, Callback callback, long timestampTotalMillis) {
-        super(options);
+    public UsersRecyclerAdapter(Context context, List<UsersModel> usersList, Callback callback) {
         this.context = context;
+        this.usersList = usersList;
         this.callback = callback;
-        this.timestampTotalMillis = timestampTotalMillis;
     }
 
     @NonNull
@@ -50,14 +47,18 @@ public class UsersRecyclerAdapter extends FirestoreRecyclerAdapter<UsersModel, U
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull UsersViewHolder holder, int position, @NonNull UsersModel model) {
+    public void onBindViewHolder(@NonNull UsersViewHolder holder, int position) {
 
-        String userID = model.getId();
-        String image = model.getImage();
-        String name = model.getName();
-        boolean online = model.isOnline();
+        UsersModel usersModel = usersList.get(position);
 
-        if (FirebaseHelper.currentUserID.equals(userID)) {
+        String userID = usersModel.getId();
+        String image = usersModel.getImage();
+        String name = usersModel.getName();
+        boolean online = usersModel.isOnline();
+
+        if (HelperMethods.getCurrentUserID().equals(userID)) {
+
+            HelperMethods.setCurrentUserModel(usersModel);
 
             holder.onlineView.setVisibility(View.GONE);
             holder.nameView.setVisibility(View.GONE);
@@ -71,40 +72,15 @@ public class UsersRecyclerAdapter extends FirestoreRecyclerAdapter<UsersModel, U
             holder.onlineView.setVisibility(online ? View.VISIBLE : View.GONE);
             holder.nameView.setText(name);
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    inviteUser(userID, name, timestampTotalMillis);
-
-                }
-            });
+            holder.itemView.setOnClickListener(v -> callback.inviteUser(usersModel));
 
         }
 
     }
 
-    private void inviteUser(String userID, String name, long timestampTotalMillis) {
-
-        new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.new_game_invitation))
-                .setMessage(context.getString(R.string.invite) + " " + name + " " + context.getString(R.string.to_a_new_room))
-                .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        callback.sendInvitation(userID, name, timestampTotalMillis);
-
-                    }
-                })
-                .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-
+    @Override
+    public int getItemCount() {
+        return usersList.size();
     }
 
     public class UsersViewHolder extends RecyclerView.ViewHolder {
@@ -117,10 +93,10 @@ public class UsersRecyclerAdapter extends FirestoreRecyclerAdapter<UsersModel, U
         public UsersViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            onlineView = itemView.findViewById(R.id.users_list_item_online);
             layoutView = itemView.findViewById(R.id.users_list_item_layout);
             imageView = itemView.findViewById(R.id.users_list_item_image);
             nameView = itemView.findViewById(R.id.users_list_item_name);
+            onlineView = itemView.findViewById(R.id.users_list_item_online);
 
         }
 

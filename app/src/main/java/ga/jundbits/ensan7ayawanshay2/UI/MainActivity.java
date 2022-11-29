@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
@@ -39,13 +40,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -72,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
         initVars();
         loadData();
         setOnClicks();
@@ -94,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                         .build())
                 .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                         .setSupported(true)
+                        .setFilterByAuthorizedAccounts(false) // false to show all signed in accounts on the device
                         .setServerClientId(getString(R.string.default_web_client_id))
                         .build())
                 .build();
@@ -156,6 +161,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createNotificationChannels() {
+
+        // TODO: 27-Nov-22 Guess should check for Google Play services
+        //  https://firebase.google.com/docs/cloud-messaging/android/client?hl=en&authuser=2#sample-pla
+
+        // TODO: 27-Nov-22 Request notification permission for Android 13+
+        //  https://firebase.google.com/docs/cloud-messaging/android/client?hl=en&authuser=2#request-permission13
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -320,9 +331,27 @@ public class MainActivity extends AppCompatActivity {
 
         String userID = firebaseUser.getUid();
 
-        UsersModel usersModel = new UsersModel(userID, credential.getDisplayName(), credential.getId(), String.valueOf(credential.getProfilePictureUri()), true);
+        UsersModel usersModel = new UsersModel(
+                userID,
+                credential.getDisplayName(),
+                credential.getId(),
+                String.valueOf(credential.getProfilePictureUri()),
+                "",
+                true);
 
-        HelperMethods.getUserDocument(this, userID)
+        // Retrieving token here to ensure it is available and not null when proceeding
+        FirebaseMessaging.getInstance()
+                .getToken()
+                .addOnSuccessListener(MainActivity.this, new OnSuccessListener<String>() {
+                    @Override
+                    public void onSuccess(String token) {
+
+                        usersModel.setToken(token);
+
+                    }
+                });
+
+        HelperMethods.userDocumentRef(this, userID)
                 .get()
                 .addOnSuccessListener(this, new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -334,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
 
                         } else {
 
-                            HelperMethods.getUserDocument(MainActivity.this, userID)
+                            HelperMethods.userDocumentRef(MainActivity.this, userID)
                                     .set(usersModel)
                                     .addOnSuccessListener(MainActivity.this, new OnSuccessListener<Void>() {
                                         @Override
