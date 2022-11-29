@@ -1,11 +1,7 @@
 package ga.jundbits.ensan7ayawanshay2.Utils;
 
-import android.app.Activity;
 import android.content.Context;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,7 +16,6 @@ import ga.jundbits.ensan7ayawanshay2.R;
 
 public class HelperMethods {
 
-    private static RequestQueue requestQueue;
     private static UsersModel currentUserModel;
 
     public static UsersModel getCurrentUserModel() {
@@ -48,6 +43,10 @@ public class HelperMethods {
         return usersCollectionRef(context).document(userID);
     }
 
+    public static DocumentReference roomDocumentRef(Context context,String roomID) {
+        return appDocumentRef(context).collection("Rooms").document(roomID);
+    }
+
     public static void setCurrentUserOnline(Context context, boolean online) {
         userDocumentRef(context, getCurrentUserID()).update("online", online);
     }
@@ -60,15 +59,6 @@ public class HelperMethods {
         long secondsToMillis = TimeUnit.SECONDS.toMillis(seconds);
         long nanoSecondsToMillis = TimeUnit.NANOSECONDS.toMillis(nanoseconds);
         return secondsToMillis + nanoSecondsToMillis;
-
-    }
-
-    public static <T> void addToRequestQueue(Context context, Request<T> request) {
-
-        if (requestQueue == null)
-            requestQueue = Volley.newRequestQueue(context);
-
-        requestQueue.add(request);
 
     }
 

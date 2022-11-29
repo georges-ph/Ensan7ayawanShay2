@@ -1,6 +1,7 @@
 package ga.jundbits.ensan7ayawanshay2.Adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -24,15 +26,17 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     private Context context;
     private List<UsersModel> usersList;
     private Callback callback;
+    private List<UsersModel> invitedUsers;
 
     public interface Callback {
-        void inviteUser(UsersModel usersModel);
+        void invitationList(List<UsersModel> usersModel);
     }
 
     public UsersRecyclerAdapter(Context context, List<UsersModel> usersList, Callback callback) {
         this.context = context;
         this.usersList = usersList;
         this.callback = callback;
+        this.invitedUsers = new ArrayList<>();
     }
 
     @NonNull
@@ -72,7 +76,22 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
             holder.onlineView.setVisibility(online ? View.VISIBLE : View.GONE);
             holder.nameView.setText(name);
 
-            holder.itemView.setOnClickListener(v -> callback.inviteUser(usersModel));
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (invitedUsers.contains(usersModel)) {
+                        invitedUsers.remove(usersModel);
+                        holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+                    } else {
+                        invitedUsers.add(usersModel);
+                        holder.itemView.setBackgroundColor(Color.GRAY);
+                    }
+
+                    callback.invitationList(invitedUsers);
+
+                }
+            });
 
         }
 

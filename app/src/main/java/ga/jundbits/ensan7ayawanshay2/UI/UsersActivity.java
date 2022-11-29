@@ -1,9 +1,10 @@
 package ga.jundbits.ensan7ayawanshay2.UI;
 
-import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -21,7 +23,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ga.jundbits.ensan7ayawanshay2.Adapters.UsersRecyclerAdapter;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
@@ -41,15 +46,21 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
     // UI
     private Toolbar usersToolbar;
     private RecyclerView usersRecyclerView;
+    private FloatingActionButton usersFab;
     private AdView usersAdView;
 
     // long
-    private long timestampTotalMillis;
+    private long timestampMillis;
 
     // String
     // still using legacy http method and not http v1 api cause didn't know how to make it work
     private String FCM_API_URL = "https://fcm.googleapis.com/fcm/send";
     private String serverKey = "AAAASjmaMiw:APA91bEum4z2usH6gddBuf4bxeRdDR18-HNFtASmIUfGlVrgd_2dAqDlWAaFgvYNsb414lcyGJaiwvMTLix6lVagXtsuOcBlxES7ZU-yq5x4J9Ms2JLoqvdxHG_aOy1o72-sXwbIKmI_";
+
+    // For invitations
+    private final List<UsersModel> invitedUsers = new ArrayList<>();
+    private final List<String> playersID = new ArrayList<>();
+    private final Map<String, Integer> scoresMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +70,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
         initVars();
         setupToolbar();
         loadUsers();
+        setOnClicks();
 
     }
 
@@ -67,13 +79,14 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
         // UI
         usersToolbar = findViewById(R.id.users_toolbar);
         usersRecyclerView = findViewById(R.id.users_recycler_view);
+        usersFab = findViewById(R.id.users_fab);
         usersAdView = findViewById(R.id.users_ad_view);
 
         // Google
         AdMob.requestBannerAd(usersAdView);
 
         // long
-        timestampTotalMillis = getIntent().getLongExtra("timestamp_millis", 0);
+        timestampMillis = getIntent().getLongExtra("timestamp_millis", 0);
 
     }
 
@@ -115,21 +128,45 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
     }
 
     @Override
-    public void inviteUser(UsersModel usersModel) {
+    public void invitationList(List<UsersModel> invitedUsers) {
 
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.new_game_invitation))
-                .setMessage(getString(R.string.invite) + " " + usersModel.getName() + " " + getString(R.string.to_a_new_room))
-                .setPositiveButton(getString(R.string.ok), (dialog, which) -> sendInvitation(usersModel))
-                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-                .show();
+        this.invitedUsers.clear();
+        playersID.clear();
+        scoresMap.clear();
+
+        this.invitedUsers.add(HelperMethods.getCurrentUserModel());
+        this.invitedUsers.addAll(invitedUsers);
+
+        for (UsersModel usersModel : this.invitedUsers) {
+            playersID.add(usersModel.getId());
+            scoresMap.put(usersModel.getId(), 0);
+        }
 
     }
 
-    private void sendInvitation(UsersModel usersModel) {
+    private void setOnClicks() {
 
-        String userID = usersModel.getId();
-        String name = usersModel.getName();
+        usersFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                for (UsersModel usersModel : invitedUsers) {
+
+                    if (usersModel.getId().equals(HelperMethods.getCurrentUserID()))
+                        continue;
+
+                    sendInvitationNotification(usersModel.getToken());
+
+                }
+
+                createRoomInFirebase();
+
+            }
+        });
+
+    }
+
+    private void sendInvitationNotification(String token) {
 
         String notificationTitle = getString(R.string.new_game_invitation);
         String notificationBody = HelperMethods.getCurrentUserModel().getName() + " " + getString(R.string.invited_you_to_a_game);
@@ -158,10 +195,10 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
 
             notification.put("title", notificationTitle);
             notification.put("body", notificationBody);
-            data.put("invitation_id", timestampTotalMillis);
+            data.put("invitation_id", timestampMillis);
             json.put("data", data);
             json.put("notification", notification);
-            json.put("to", usersModel.getToken());
+            json.put("to", token);
 
         } catch (JSONException e) {
             String st = "";
@@ -174,16 +211,14 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
 
         OkHttpClient client = new OkHttpClient();
 
-        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json.toString());
-
-        okhttp3.Request request1 = new okhttp3.Request.Builder()
+        okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(FCM_API_URL)
-                .post(body)
+                .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json.toString()))
                 .addHeader("Authorization", "key=" + serverKey)
                 // .addHeader("Content-Type", "application/json")
                 .build();
 
-        client.newCall(request1).enqueue(new Callback() {
+        client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -192,7 +227,6 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
                     st += e.getStackTrace()[i];
                 }
                 Log.d("msggg", "error: \nmessage: " + e.getMessage() + "\ncause: " + e.getCause() + "\nstacktrace: " + st);
-
 
             }
 
@@ -204,60 +238,37 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
                     Log.d("msggg", "response: " + responseBody.string());
                 }
 
-
             }
         });
 
-//        Map<String, Integer> scoresMap = new HashMap<>();
-//        scoresMap.put(FirebaseHelper.currentUserID, 0);
-//
-//        Map<String, Object> roomMap = new HashMap<>();
-//        roomMap.put("players", FieldValue.arrayUnion(FirebaseHelper.currentUserID));
-//        roomMap.put("scores", scoresMap);
-//        roomMap.put("started", false);
-//        roomMap.put("first_start", true);
-//        roomMap.put("letter", "A");
-//        roomMap.put("timestamp_millis", timestampTotalMillis);
-//
-//        FirebaseHelper.appDocument
-//                .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-//                .get()
-//                .addOnSuccessListener(this, new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//
-//                        if (documentSnapshot.exists()) {
-//
-//                            FirebaseHelper.appDocument
-//                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-//                                    .update(
-//                                            "players", FieldValue.arrayUnion(userID),
-//                                            "scores." + userID, 0
-//                                    );
-//
-//                        } else {
-//
-//                            FirebaseHelper.appDocument
-//                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-//                                    .set(roomMap)
-//                                    .addOnSuccessListener(UsersActivity.this, new OnSuccessListener<Void>() {
-//                                        @Override
-//                                        public void onSuccess(Void aVoid) {
-//
-//                                            FirebaseHelper.appDocument
-//                                                    .collection("Rooms").document(String.valueOf(timestampTotalMillis))
-//                                                    .update(
-//                                                            "players", FieldValue.arrayUnion(userID),
-//                                                            "scores." + userID, 0
-//                                                    );
-//
-//                                        }
-//                                    });
-//
-//                        }
-//
-//                    }
-//                });
+    }
+
+    private void createRoomInFirebase() {
+
+        Map<String, Object> roomMap = new HashMap<>();
+        roomMap.put("players", playersID);
+        roomMap.put("scores", scoresMap);
+        roomMap.put("started", false);
+        roomMap.put("first_start", true);
+        roomMap.put("letter", "A");
+        roomMap.put("timestamp_millis", timestampMillis);
+
+        HelperMethods
+                .roomDocumentRef(getApplicationContext(), String.valueOf(timestampMillis))
+                .set(roomMap)
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                        Toast.makeText(UsersActivity.this, "Invitations sent successfully", Toast.LENGTH_SHORT).show();
+
+                        Intent gameRoomIntent = new Intent(UsersActivity.this, GameRoomActivity.class);
+                        gameRoomIntent.putExtra("game_id", timestampMillis);
+                        startActivity(gameRoomIntent);
+                        finish();
+
+                    }
+                });
 
     }
 
