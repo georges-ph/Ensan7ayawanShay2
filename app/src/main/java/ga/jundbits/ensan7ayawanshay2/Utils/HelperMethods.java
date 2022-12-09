@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 
@@ -144,14 +145,6 @@ public class HelperMethods {
                     }
                 });
 
-    }
-
-    public interface HelperMethodsCallback {
-        void onSuccess(UsersModel usersModel);
-
-        void onFailure(Exception e);
-
-        void isOnline(boolean online);
     }
 
 }

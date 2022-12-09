@@ -16,13 +16,15 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
 import ga.jundbits.ensan7ayawanshay2.Models.RoomsModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.UI.GameRoomActivity;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.ViewHolders.RoomsViewHolder;
 
-public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsRecyclerAdapter.RoomsViewHolder> {
+public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsViewHolder> {
 
     private Context context;
     private List<RoomsModel> roomsList;
@@ -51,7 +53,7 @@ public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsRecyclerAdap
         List<String> participants = roomsModel.getPlayers();
         String roomCreatorID = participants.get(0);
 
-        HelperMethods.getUserData(context, roomCreatorID, new HelperMethods.HelperMethodsCallback() {
+        HelperMethods.getUserData(context, roomCreatorID, new HelperMethodsCallback() {
             @Override
             public void onSuccess(UsersModel usersModel) {
 
@@ -94,21 +96,6 @@ public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsRecyclerAdap
     @Override
     public int getItemCount() {
         return roomsList.size();
-    }
-
-    public class RoomsViewHolder extends RecyclerView.ViewHolder {
-
-        private CircleImageView imageView;
-        private TextView textView;
-
-        public RoomsViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            imageView = itemView.findViewById(R.id.rooms_list_item_image);
-            textView = itemView.findViewById(R.id.rooms_list_item_text);
-
-        }
-
     }
 
 }

@@ -5,10 +5,8 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -16,23 +14,20 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import ga.jundbits.ensan7ayawanshay2.Callbacks.UsersRecyclerAdapterCallback;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.ViewHolders.UsersViewHolder;
 
-public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.UsersViewHolder> {
+public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersViewHolder> {
 
     private Context context;
     private List<UsersModel> usersList;
-    private Callback callback;
+    private UsersRecyclerAdapterCallback callback;
     private List<UsersModel> invitedUsers;
 
-    public interface Callback {
-        void invitationList(List<UsersModel> usersModel);
-    }
-
-    public UsersRecyclerAdapter(Context context, List<UsersModel> usersList, Callback callback) {
+    public UsersRecyclerAdapter(Context context, List<UsersModel> usersList, UsersRecyclerAdapterCallback callback) {
         this.context = context;
         this.usersList = usersList;
         this.callback = callback;
@@ -100,25 +95,6 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     @Override
     public int getItemCount() {
         return usersList.size();
-    }
-
-    public class UsersViewHolder extends RecyclerView.ViewHolder {
-
-        private ConstraintLayout layoutView;
-        private CircleImageView imageView;
-        private TextView nameView;
-        private CircleImageView onlineView;
-
-        public UsersViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            layoutView = itemView.findViewById(R.id.users_list_item_layout);
-            imageView = itemView.findViewById(R.id.users_list_item_image);
-            nameView = itemView.findViewById(R.id.users_list_item_name);
-            onlineView = itemView.findViewById(R.id.users_list_item_online);
-
-        }
-
     }
 
 }

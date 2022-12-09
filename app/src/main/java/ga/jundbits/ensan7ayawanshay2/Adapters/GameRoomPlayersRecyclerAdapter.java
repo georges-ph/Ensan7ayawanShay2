@@ -4,19 +4,19 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.ViewHolders.GameRoomPlayersViewHolder;
 
-public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoomPlayersRecyclerAdapter.GameRoomPlayersViewHolder> {
+public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoomPlayersViewHolder> {
 
     private Context context;
     private List<String> playersIdList;
@@ -44,7 +44,7 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
     @Override
     public void onBindViewHolder(@NonNull GameRoomPlayersViewHolder holder, int position) {
 
-        HelperMethods.isUserOnline(context, playersIdList.get(position), new HelperMethods.HelperMethodsCallback() {
+        HelperMethods.isUserOnline(context, playersIdList.get(position), new HelperMethodsCallback() {
             @Override
             public void onSuccess(UsersModel usersModel) {
 
@@ -71,22 +71,6 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
     @Override
     public int getItemCount() {
         return namesList.size();
-    }
-
-    public class GameRoomPlayersViewHolder extends RecyclerView.ViewHolder {
-
-        private CircleImageView onlineView;
-        private TextView nameView, scoreView;
-
-        public GameRoomPlayersViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            onlineView = itemView.findViewById(R.id.game_room_players_list_item_online);
-            nameView = itemView.findViewById(R.id.game_room_players_list_item_name);
-            scoreView = itemView.findViewById(R.id.game_room_players_list_item_score);
-
-        }
-
     }
 
 }

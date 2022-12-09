@@ -1,11 +1,9 @@
 package ga.jundbits.ensan7ayawanshay2.Adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import ga.jundbits.ensan7ayawanshay2.R;
+import ga.jundbits.ensan7ayawanshay2.ViewHolders.GameRoomEntriesViewHolder;
 
-public class GameRoomEntriesRecyclerAdapter extends RecyclerView.Adapter<GameRoomEntriesRecyclerAdapter.GameRoomEntriesViewHolder> {
+public class GameRoomEntriesRecyclerAdapter extends RecyclerView.Adapter<GameRoomEntriesViewHolder> {
 
     private Context context;
     private List<String> list;
@@ -45,19 +44,6 @@ public class GameRoomEntriesRecyclerAdapter extends RecyclerView.Adapter<GameRoo
     @Override
     public int getItemCount() {
         return list.size();
-    }
-
-    public class GameRoomEntriesViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView textView;
-
-        public GameRoomEntriesViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            textView = itemView.findViewById(R.id.game_room_entries_list_item_text);
-
-        }
-
     }
 
 }

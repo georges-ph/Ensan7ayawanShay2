@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import ga.jundbits.ensan7ayawanshay2.Adapters.UsersRecyclerAdapter;
+import ga.jundbits.ensan7ayawanshay2.Callbacks.UsersRecyclerAdapterCallback;
+import ga.jundbits.ensan7ayawanshay2.Models.GameModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
@@ -41,7 +43,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
-public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAdapter.Callback {
+public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAdapterCallback {
 
     // UI
     private Toolbar usersToolbar;
@@ -245,17 +247,11 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
 
     private void createRoomInFirebase() {
 
-        Map<String, Object> roomMap = new HashMap<>();
-        roomMap.put("players", playersID);
-        roomMap.put("scores", scoresMap);
-        roomMap.put("started", false);
-        roomMap.put("first_start", true);
-        roomMap.put("letter", "A");
-        roomMap.put("timestamp_millis", timestampMillis);
+        GameModel gameModel = new GameModel(true, false, "A", playersID, scoresMap, timestampMillis);
 
         HelperMethods
                 .roomDocumentRef(getApplicationContext(), String.valueOf(timestampMillis))
-                .set(roomMap)
+                .set(gameModel)
                 .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {

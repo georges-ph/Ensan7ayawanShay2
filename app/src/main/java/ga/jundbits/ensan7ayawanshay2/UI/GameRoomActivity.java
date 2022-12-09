@@ -33,6 +33,8 @@ import java.util.List;
 
 import ga.jundbits.ensan7ayawanshay2.Adapters.GameRoomEntriesRecyclerAdapter;
 import ga.jundbits.ensan7ayawanshay2.Adapters.GameRoomPlayersRecyclerAdapter;
+import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
+import ga.jundbits.ensan7ayawanshay2.Enums.FieldType;
 import ga.jundbits.ensan7ayawanshay2.Models.EntriesModel;
 import ga.jundbits.ensan7ayawanshay2.Models.GameModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
@@ -61,13 +63,6 @@ public class GameRoomActivity extends UserOnlineActivity {
 
     // long
     private long gameID;
-
-    // enum
-    private enum Type {
-        ENSAN,
-        HAYAWAN,
-        SHAY2
-    }
 
     // int
     private final int ZERO = 0, FIVE = 5, TEN = 10;
@@ -364,7 +359,7 @@ public class GameRoomActivity extends UserOnlineActivity {
 
             String playerID = gameModel.getPlayers().get(i);
 
-            HelperMethods.getUserData(this, playerID, new HelperMethods.HelperMethodsCallback() {
+            HelperMethods.getUserData(this, playerID, new HelperMethodsCallback() {
                 @Override
                 public void onSuccess(UsersModel usersModel) {
 
@@ -403,23 +398,23 @@ public class GameRoomActivity extends UserOnlineActivity {
         gameRoomStartButton.setOnClickListener(v -> startGame());
         gameRoomStopButton.setOnClickListener(v -> stopGame());
 
-        gameRoomEnsanPoints0.setOnClickListener(v -> clickedScore(Type.ENSAN, ZERO));
-        gameRoomEnsanPoints5.setOnClickListener(v -> clickedScore(Type.ENSAN, FIVE));
-        gameRoomEnsanPoints10.setOnClickListener(v -> clickedScore(Type.ENSAN, TEN));
+        gameRoomEnsanPoints0.setOnClickListener(v -> clickedScore(FieldType.ENSAN, ZERO));
+        gameRoomEnsanPoints5.setOnClickListener(v -> clickedScore(FieldType.ENSAN, FIVE));
+        gameRoomEnsanPoints10.setOnClickListener(v -> clickedScore(FieldType.ENSAN, TEN));
 
-        gameRoom7ayawanPoints0.setOnClickListener(v -> clickedScore(Type.HAYAWAN, ZERO));
-        gameRoom7ayawanPoints5.setOnClickListener(v -> clickedScore(Type.HAYAWAN, FIVE));
-        gameRoom7ayawanPoints10.setOnClickListener(v -> clickedScore(Type.HAYAWAN, TEN));
+        gameRoom7ayawanPoints0.setOnClickListener(v -> clickedScore(FieldType.HAYAWAN, ZERO));
+        gameRoom7ayawanPoints5.setOnClickListener(v -> clickedScore(FieldType.HAYAWAN, FIVE));
+        gameRoom7ayawanPoints10.setOnClickListener(v -> clickedScore(FieldType.HAYAWAN, TEN));
 
-        gameRoomShay2Points0.setOnClickListener(v -> clickedScore(Type.SHAY2, ZERO));
-        gameRoomShay2Points5.setOnClickListener(v -> clickedScore(Type.SHAY2, FIVE));
-        gameRoomShay2Points10.setOnClickListener(v -> clickedScore(Type.SHAY2, TEN));
+        gameRoomShay2Points0.setOnClickListener(v -> clickedScore(FieldType.SHAY2, ZERO));
+        gameRoomShay2Points5.setOnClickListener(v -> clickedScore(FieldType.SHAY2, FIVE));
+        gameRoomShay2Points10.setOnClickListener(v -> clickedScore(FieldType.SHAY2, TEN));
 
     }
 
-    private void clickedScore(Type type, int score) {
+    private void clickedScore(FieldType type, int score) {
 
-        if (type.equals(Type.ENSAN)) {
+        if (type.equals(FieldType.ENSAN)) {
 
             gameRoomEnsanPoints0.setBackgroundTintList(null);
             gameRoomEnsanPoints5.setBackgroundTintList(null);
@@ -442,7 +437,7 @@ public class GameRoomActivity extends UserOnlineActivity {
 
             }
 
-        } else if (type.equals(Type.HAYAWAN)) {
+        } else if (type.equals(FieldType.HAYAWAN)) {
 
             gameRoom7ayawanPoints0.setBackgroundTintList(null);
             gameRoom7ayawanPoints5.setBackgroundTintList(null);
@@ -465,7 +460,7 @@ public class GameRoomActivity extends UserOnlineActivity {
 
             }
 
-        } else if (type.equals(Type.SHAY2)) {
+        } else if (type.equals(FieldType.SHAY2)) {
 
             gameRoomShay2Points0.setBackgroundTintList(null);
             gameRoomShay2Points5.setBackgroundTintList(null);
