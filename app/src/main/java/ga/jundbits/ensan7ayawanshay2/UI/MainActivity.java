@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        if (getIntent().hasExtra("game_id"))
+        if (getIntent().hasExtra("invitation_id"))
             mainButton.setText(getString(R.string.join_room));
 
     }
@@ -282,9 +282,9 @@ public class MainActivity extends AppCompatActivity {
         mainProgressBar.setVisibility(View.GONE);
         mainButton.setEnabled(true);
 
-        if (getIntent().hasExtra("game_id")) {
+        if (getIntent().hasExtra("invitation_id")) {
 
-            long gameID = getIntent().getLongExtra("game_id", 0);
+            long gameID = getIntent().getLongExtra("invitation_id", 0);
 
             Intent gameRoomIntent = new Intent(this, GameRoomActivity.class);
             gameRoomIntent.putExtra("game_id", gameID);

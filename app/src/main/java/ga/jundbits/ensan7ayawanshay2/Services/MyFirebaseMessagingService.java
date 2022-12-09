@@ -67,7 +67,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("game_id", gameInvitationID);
+        intent.putExtra("invitation_id", gameInvitationID);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
         Notification notification = new NotificationCompat.Builder(this, getString(R.string.games_invitations_notification_channel_id))
