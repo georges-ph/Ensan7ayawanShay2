@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -13,8 +14,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
@@ -57,6 +61,14 @@ public class HelperMethods {
         return roomsCollectionRef(context).document(roomID);
     }
 
+    public static CollectionReference entriesCollectionRef(Context context, String roomID) {
+        return roomDocumentRef(context, roomID).collection("Entries");
+    }
+
+    public static DocumentReference entriesDocumentRef(Context context, String roomID) {
+        return entriesCollectionRef(context, roomID).document(getCurrentUserID());
+    }
+
     public static void setCurrentUserOnline(Context context, boolean online) {
         userDocumentRef(context, getCurrentUserID()).update("online", online);
     }
@@ -69,6 +81,21 @@ public class HelperMethods {
         long secondsToMillis = TimeUnit.SECONDS.toMillis(seconds);
         long nanoSecondsToMillis = TimeUnit.NANOSECONDS.toMillis(nanoseconds);
         return secondsToMillis + nanoSecondsToMillis;
+
+    }
+
+    public static String chooseLetter() {
+
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        char[] chars = alphabet.toCharArray();
+        StringBuilder stringBuilder = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 1; i++) {
+            char c1 = chars[random.nextInt(chars.length)];
+            stringBuilder.append(c1);
+        }
+
+        return stringBuilder.toString();
 
     }
 
@@ -96,10 +123,35 @@ public class HelperMethods {
 
     }
 
+    public static void isUserOnline(Context context, String userID, HelperMethodsCallback callback) {
+
+        userDocumentRef(context, userID)
+                .addSnapshotListener((Activity) context, new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+
+                        if (error != null) {
+                            callback.onFailure(error);
+                            return;
+                        }
+
+                        if (documentSnapshot == null || !documentSnapshot.exists())
+                            return;
+
+                        UsersModel usersModel = documentSnapshot.toObject(UsersModel.class);
+                        callback.isOnline(usersModel.isOnline());
+
+                    }
+                });
+
+    }
+
     public interface HelperMethodsCallback {
         void onSuccess(UsersModel usersModel);
 
         void onFailure(Exception e);
+
+        void isOnline(boolean online);
     }
 
 }

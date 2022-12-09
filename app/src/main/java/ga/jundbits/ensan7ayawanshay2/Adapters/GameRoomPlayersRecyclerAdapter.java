@@ -12,8 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 
 public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoomPlayersRecyclerAdapter.GameRoomPlayersViewHolder> {
 
@@ -43,9 +44,14 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
     @Override
     public void onBindViewHolder(@NonNull GameRoomPlayersViewHolder holder, int position) {
 
-        FirebaseHelper.getUserOnline(playersIdList.get(position), new FirebaseHelper.Callback() {
+        HelperMethods.isUserOnline(context, playersIdList.get(position), new HelperMethods.HelperMethodsCallback() {
             @Override
-            public void onFinished(String data) {
+            public void onSuccess(UsersModel usersModel) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
 
             }
 

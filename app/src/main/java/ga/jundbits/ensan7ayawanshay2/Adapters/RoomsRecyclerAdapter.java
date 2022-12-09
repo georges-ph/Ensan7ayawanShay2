@@ -71,6 +71,11 @@ public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsRecyclerAdap
                 holder.textView.setText("Someone " + context.getString(R.string.created_a_room));
 
             }
+
+            @Override
+            public void isOnline(boolean online) {
+
+            }
         });
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

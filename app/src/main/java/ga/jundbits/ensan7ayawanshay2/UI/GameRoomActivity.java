@@ -3,6 +3,7 @@ package ga.jundbits.ensan7ayawanshay2.UI;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,20 +26,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 import ga.jundbits.ensan7ayawanshay2.Adapters.GameRoomEntriesRecyclerAdapter;
 import ga.jundbits.ensan7ayawanshay2.Adapters.GameRoomPlayersRecyclerAdapter;
+import ga.jundbits.ensan7ayawanshay2.Models.EntriesModel;
+import ga.jundbits.ensan7ayawanshay2.Models.GameModel;
+import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
-import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
 
 public class GameRoomActivity extends UserOnlineActivity {
@@ -71,11 +70,17 @@ public class GameRoomActivity extends UserOnlineActivity {
     }
 
     // int
-    private int ZERO = 0, FIVE = 5, TEN = 10;
+    private final int ZERO = 0, FIVE = 5, TEN = 10;
     private int ensanScore = 0, hayawanScore = 0, shay2Score = 0, totalScore = 0;
 
     // Firebase References
     private DocumentReference gameRoomDocument;
+
+    // Models
+    private GameModel gameModel;
+
+    // Lists
+    private List<String> namesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +151,7 @@ public class GameRoomActivity extends UserOnlineActivity {
         gameID = getIntent().getLongExtra("game_id", 0);
 
         // Firebase References
-        gameRoomDocument = FirebaseHelper.appDocument.collection("Rooms").document(String.valueOf(gameID));
+        gameRoomDocument = HelperMethods.roomDocumentRef(this, String.valueOf(gameID));
 
     }
 
@@ -160,112 +165,117 @@ public class GameRoomActivity extends UserOnlineActivity {
 
     private void loadGame() {
 
-        loadLetter();
-        loadPlayers();
-
-    }
-
-    private void loadLetter() {
-
         gameRoomDocument
                 .addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
 
-                        boolean started = documentSnapshot.getBoolean("started");
-                        boolean firstStart = documentSnapshot.getBoolean("first_start");
-                        String letter = documentSnapshot.getString("letter");
+                        if (documentSnapshot == null || !documentSnapshot.exists())
+                            return;
 
-                        if (started) {
+                        gameModel = documentSnapshot.toObject(GameModel.class);
 
-                            gameRoomLetter.setText(letter);
-
-                            gameRoomEnsan.getEditText().getText().clear();
-                            gameRoom7ayawan.getEditText().getText().clear();
-                            gameRoomShay2.getEditText().getText().clear();
-
-                            gameRoomEnsan.setEnabled(true);
-                            gameRoom7ayawan.setEnabled(true);
-                            gameRoomShay2.setEnabled(true);
-
-                            gameRoomDocument
-                                    .update("scores." + FirebaseHelper.currentUserID, FieldValue.increment(totalScore));
-
-                            clearEntries();
-
-                            ensanScore = ZERO;
-                            hayawanScore = ZERO;
-                            shay2Score = ZERO;
-                            totalScore = ZERO;
-                            gameRoomYourScore.setText(String.valueOf(totalScore));
-
-                            gameRoomEnsanEntries.setVisibility(View.GONE);
-                            gameRoom7ayawanEntries.setVisibility(View.GONE);
-                            gameRoomShay2Entries.setVisibility(View.GONE);
-
-                            gameRoomEnsanPointsLayout.setVisibility(View.GONE);
-                            gameRoom7ayawanPointsLayout.setVisibility(View.GONE);
-                            gameRoomShay2PointsLayout.setVisibility(View.GONE);
-
-                            gameRoomStartButton.setVisibility(View.GONE);
-                            gameRoomStopButton.setVisibility(View.VISIBLE);
-
-                        } else {
-
-                            if (firstStart) {
-
-                                gameRoomLetter.setText(getString(R.string.press_start_button));
-
-                            } else {
-
-                                gameRoomLetter.setText(letter + getString(R.string.stopped));
-
-                                gameRoomEnsan.setEnabled(false);
-                                gameRoom7ayawan.setEnabled(false);
-                                gameRoomShay2.setEnabled(false);
-
-                                saveEntries();
-
-                                gameRoomEnsanPointsLayout.setVisibility(View.VISIBLE);
-                                gameRoom7ayawanPointsLayout.setVisibility(View.VISIBLE);
-                                gameRoomShay2PointsLayout.setVisibility(View.VISIBLE);
-
-                                gameRoomEnsanPoints0.setBackgroundTintList(null);
-                                gameRoomEnsanPoints5.setBackgroundTintList(null);
-                                gameRoomEnsanPoints10.setBackgroundTintList(null);
-                                gameRoom7ayawanPoints0.setBackgroundTintList(null);
-                                gameRoom7ayawanPoints5.setBackgroundTintList(null);
-                                gameRoom7ayawanPoints10.setBackgroundTintList(null);
-                                gameRoomShay2Points0.setBackgroundTintList(null);
-                                gameRoomShay2Points5.setBackgroundTintList(null);
-                                gameRoomShay2Points10.setBackgroundTintList(null);
-
-                                gameRoomEnsanEntries.setVisibility(View.VISIBLE);
-                                gameRoom7ayawanEntries.setVisibility(View.VISIBLE);
-                                gameRoomShay2Entries.setVisibility(View.VISIBLE);
-
-                                gameRoomStartButton.setVisibility(View.VISIBLE);
-                                gameRoomStopButton.setVisibility(View.GONE);
-
-                            }
-
-                        }
+                        loadLetter();
+                        loadPlayers();
 
                     }
                 });
 
     }
 
+    private void loadLetter() {
+
+        if (gameModel.isStarted()) {
+
+            gameRoomLetter.setText(gameModel.getLetter());
+
+            gameRoomEnsan.getEditText().getText().clear();
+            gameRoom7ayawan.getEditText().getText().clear();
+            gameRoomShay2.getEditText().getText().clear();
+
+            gameRoomEnsan.setEnabled(true);
+            gameRoom7ayawan.setEnabled(true);
+            gameRoomShay2.setEnabled(true);
+
+            // this is making the document updates go crazy
+//            Map<String, Integer> scores = gameModel.getScores();
+//            int score = scores.get(HelperMethods.getCurrentUserID());
+//            scores.put(HelperMethods.getCurrentUserID(), score + totalScore);
+//            gameModel.setScores(scores);
+//
+//            gameRoomDocument.set(gameModel);
+
+            // this works fine
+            // maybe because it's updating a single field instead of the whole map and whole document
+            gameRoomDocument
+                    .update("scores." + HelperMethods.getCurrentUserID(), FieldValue.increment(totalScore));
+
+            clearEntries();
+
+            ensanScore = ZERO;
+            hayawanScore = ZERO;
+            shay2Score = ZERO;
+            totalScore = ZERO;
+            gameRoomYourScore.setText(String.valueOf(totalScore));
+
+            gameRoomEnsanEntries.setVisibility(View.GONE);
+            gameRoom7ayawanEntries.setVisibility(View.GONE);
+            gameRoomShay2Entries.setVisibility(View.GONE);
+
+            gameRoomEnsanPointsLayout.setVisibility(View.GONE);
+            gameRoom7ayawanPointsLayout.setVisibility(View.GONE);
+            gameRoomShay2PointsLayout.setVisibility(View.GONE);
+
+            gameRoomStartButton.setVisibility(View.GONE);
+            gameRoomStopButton.setVisibility(View.VISIBLE);
+
+        } else {
+
+            if (gameModel.isFirst_start()) {
+
+                gameRoomLetter.setText(getString(R.string.press_start_button));
+
+            } else {
+
+                gameRoomLetter.setText(gameModel.getLetter() + getString(R.string.stopped));
+
+                gameRoomEnsan.setEnabled(false);
+                gameRoom7ayawan.setEnabled(false);
+                gameRoomShay2.setEnabled(false);
+
+                saveEntries();
+
+                gameRoomEnsanPointsLayout.setVisibility(View.VISIBLE);
+                gameRoom7ayawanPointsLayout.setVisibility(View.VISIBLE);
+                gameRoomShay2PointsLayout.setVisibility(View.VISIBLE);
+
+                gameRoomEnsanPoints0.setBackgroundTintList(null);
+                gameRoomEnsanPoints5.setBackgroundTintList(null);
+                gameRoomEnsanPoints10.setBackgroundTintList(null);
+                gameRoom7ayawanPoints0.setBackgroundTintList(null);
+                gameRoom7ayawanPoints5.setBackgroundTintList(null);
+                gameRoom7ayawanPoints10.setBackgroundTintList(null);
+                gameRoomShay2Points0.setBackgroundTintList(null);
+                gameRoomShay2Points5.setBackgroundTintList(null);
+                gameRoomShay2Points10.setBackgroundTintList(null);
+
+                gameRoomEnsanEntries.setVisibility(View.VISIBLE);
+                gameRoom7ayawanEntries.setVisibility(View.VISIBLE);
+                gameRoomShay2Entries.setVisibility(View.VISIBLE);
+
+                gameRoomStartButton.setVisibility(View.VISIBLE);
+                gameRoomStopButton.setVisibility(View.GONE);
+
+            }
+
+        }
+
+    }
+
     private void clearEntries() {
 
-        Map<String, Object> entriesMap = new HashMap<>();
-        entriesMap.put("ensan", "");
-        entriesMap.put("7ayawan", "");
-        entriesMap.put("shay2", "");
-
-        gameRoomDocument
-                .collection("Entries").document(FirebaseHelper.currentUserID)
-                .set(entriesMap);
+        HelperMethods.entriesDocumentRef(this, String.valueOf(gameID))
+                .set(new EntriesModel().empty());
 
     }
 
@@ -275,29 +285,21 @@ public class GameRoomActivity extends UserOnlineActivity {
         String hayawan = gameRoom7ayawan.getEditText().getText().toString();
         String shay2 = gameRoomShay2.getEditText().getText().toString();
 
-        if (TextUtils.isEmpty(ensan) && TextUtils.isEmpty(hayawan) && TextUtils.isEmpty(shay2)) {
+        if (!TextUtils.isEmpty(ensan) || !TextUtils.isEmpty(hayawan) || !TextUtils.isEmpty(shay2)) {
 
-            loadPlayersEntries();
-            return;
+            EntriesModel entriesModel = new EntriesModel(ensan, hayawan, shay2);
+
+            HelperMethods.entriesDocumentRef(this, String.valueOf(gameID))
+                    .set(entriesModel);
 
         }
 
-        Map<String, Object> entriesMap = new HashMap<>();
-        entriesMap.put("ensan", ensan);
-        entriesMap.put("7ayawan", hayawan);
-        entriesMap.put("shay2", shay2);
-
-        gameRoomDocument
-                .collection("Entries").document(FirebaseHelper.currentUserID)
-                .set(entriesMap)
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-
-                        loadPlayersEntries();
-
-                    }
-                });
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadPlayersEntries();
+            }
+        }, 1000); // delay the loading until namesList is not empty
 
     }
 
@@ -307,101 +309,37 @@ public class GameRoomActivity extends UserOnlineActivity {
         List<String> hayawanList = new ArrayList<>();
         List<String> shay2List = new ArrayList<>();
 
-        // Ensan
-        Query ensanQuery = gameRoomDocument.collection("Entries").orderBy("ensan");
-        ensanQuery
+        HelperMethods.entriesCollectionRef(this, String.valueOf(gameID))
                 .get()
                 .addOnSuccessListener(this, new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
+                        int index = 0;
+
                         for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
 
-                            FirebaseHelper.getUserName(documentSnapshot.getId(), new FirebaseHelper.Callback() {
-                                @Override
-                                public void onFinished(String data) {
+                            EntriesModel entriesModel = documentSnapshot.toObject(EntriesModel.class);
 
-                                    ensanList.add(data + ": " + documentSnapshot.getString("ensan"));
+                            ensanList.add(namesList.get(index) + ": " + entriesModel.getEnsan());
+                            hayawanList.add(namesList.get(index) + ": " + entriesModel.getHayawan());
+                            shay2List.add(namesList.get(index) + ": " + entriesModel.getShay2());
 
-                                    if (ensanList.size() == queryDocumentSnapshots.size())
-                                        createList(ensanList, gameRoomEnsanEntries);
+                            index++;
 
-                                }
+                            if (ensanList.size() == queryDocumentSnapshots.size())
+                                createList(ensanList, gameRoomEnsanEntries);
 
-                                @Override
-                                public void isOnline(boolean online) {
+                            if (hayawanList.size() == queryDocumentSnapshots.size())
+                                createList(hayawanList, gameRoom7ayawanEntries);
 
-                                }
-                            });
+                            if (shay2List.size() == queryDocumentSnapshots.size())
+                                createList(shay2List, gameRoomShay2Entries);
 
                         }
 
                     }
 
-                });
-
-        // 7ayawan
-        Query hayawanQuery = gameRoomDocument.collection("Entries").orderBy("7ayawan");
-        hayawanQuery
-                .get()
-                .addOnSuccessListener(this, new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
-                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
-
-                            FirebaseHelper.getUserName(documentSnapshot.getId(), new FirebaseHelper.Callback() {
-                                @Override
-                                public void onFinished(String data) {
-
-                                    hayawanList.add(data + ": " + documentSnapshot.getString("7ayawan"));
-
-                                    if (hayawanList.size() == queryDocumentSnapshots.size())
-                                        createList(hayawanList, gameRoom7ayawanEntries);
-
-                                }
-
-                                @Override
-                                public void isOnline(boolean online) {
-
-                                }
-                            });
-
-                        }
-
-                    }
-                });
-
-        // Shay2
-        Query shay2Query = gameRoomDocument.collection("Entries").orderBy("shay2");
-        shay2Query
-                .get()
-                .addOnSuccessListener(this, new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
-                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
-
-                            FirebaseHelper.getUserName(documentSnapshot.getId(), new FirebaseHelper.Callback() {
-                                @Override
-                                public void onFinished(String data) {
-
-                                    shay2List.add(data + ": " + documentSnapshot.getString("shay2"));
-
-                                    if (shay2List.size() == queryDocumentSnapshots.size())
-                                        createList(shay2List, gameRoomShay2Entries);
-
-                                }
-
-                                @Override
-                                public void isOnline(boolean online) {
-
-                                }
-                            });
-
-                        }
-
-                    }
                 });
 
     }
@@ -418,74 +356,52 @@ public class GameRoomActivity extends UserOnlineActivity {
     private void loadPlayers() {
 
         List<String> playersIdList = new ArrayList<>();
-        List<String> namesList = new ArrayList<>();
         List<Integer> scoresList = new ArrayList<>();
 
-        gameRoomDocument
-                .addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+        namesList.clear();
 
-                        List<String> playersList = (List<String>) documentSnapshot.get("players");
+        for (int i = 0; i < gameModel.getPlayers().size(); i++) {
 
-                        playersIdList.clear();
-                        namesList.clear();
-                        scoresList.clear();
+            String playerID = gameModel.getPlayers().get(i);
 
-                        for (int i = 0; i < playersList.size(); i++) {
+            HelperMethods.getUserData(this, playerID, new HelperMethods.HelperMethodsCallback() {
+                @Override
+                public void onSuccess(UsersModel usersModel) {
 
-                            int finalI = i;
+                    playersIdList.add(playerID);
+                    namesList.add(usersModel.getName());
+                    scoresList.add(gameModel.getScores().get(playerID));
 
-                            FirebaseHelper.getUserName(playersList.get(i), new FirebaseHelper.Callback() {
-                                @Override
-                                public void onFinished(String data) {
+                    if (namesList.size() == gameModel.getPlayers().size()) {
 
-                                    playersIdList.add(playersList.get(finalI));
-                                    namesList.add(data);
-                                    scoresList.add(documentSnapshot.getLong("scores." + playersList.get(finalI)).intValue());
+                        GameRoomPlayersRecyclerAdapter gameRoomPlayersRecyclerAdapter = new GameRoomPlayersRecyclerAdapter(GameRoomActivity.this, playersIdList, namesList, scoresList);
 
-                                    if (namesList.size() == playersList.size()) {
-
-                                        GameRoomPlayersRecyclerAdapter gameRoomPlayersRecyclerAdapter = new GameRoomPlayersRecyclerAdapter(GameRoomActivity.this, playersIdList,namesList, scoresList);
-
-                                        gameRoomPlayersRecyclerView.setLayoutManager(new LinearLayoutManager(GameRoomActivity.this));
-                                        gameRoomPlayersRecyclerView.setAdapter(gameRoomPlayersRecyclerAdapter);
-
-                                    }
-
-                                }
-
-                                @Override
-                                public void isOnline(boolean online) {
-
-                                }
-                            });
-                        }
+                        gameRoomPlayersRecyclerView.setLayoutManager(new LinearLayoutManager(GameRoomActivity.this));
+                        gameRoomPlayersRecyclerView.setAdapter(gameRoomPlayersRecyclerAdapter);
 
                     }
-                });
+
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+
+                @Override
+                public void isOnline(boolean online) {
+
+                }
+            });
+
+        }
 
     }
 
     private void setOnClick() {
 
-        gameRoomStartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                startGame();
-
-            }
-        });
-
-        gameRoomStopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                stopGame();
-
-            }
-        });
+        gameRoomStartButton.setOnClickListener(v -> startGame());
+        gameRoomStopButton.setOnClickListener(v -> stopGame());
 
         gameRoomEnsanPoints0.setOnClickListener(v -> clickedScore(Type.ENSAN, ZERO));
         gameRoomEnsanPoints5.setOnClickListener(v -> clickedScore(Type.ENSAN, FIVE));
@@ -581,38 +497,21 @@ public class GameRoomActivity extends UserOnlineActivity {
 
     private void startGame() {
 
-        Map<String, Object> gameMap = new HashMap<>();
-        gameMap.put("started", true);
-        gameMap.put("letter", chooseLetter());
-//        gameMap.put("scores." + FirebaseHelper.currentUserID, FieldValue.increment(totalScore));
+        gameModel.setStarted(true);
+        gameModel.setLetter(HelperMethods.chooseLetter());
+        gameModel.setFirst_start(false);
 
         gameRoomDocument
-                .update(gameMap);
-
-    }
-
-    private String chooseLetter() {
-
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        char[] chars = alphabet.toCharArray();
-        StringBuilder stringBuilder = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < 1; i++) {
-            char c1 = chars[random.nextInt(chars.length)];
-            stringBuilder.append(c1);
-        }
-
-        return stringBuilder.toString();
+                .set(gameModel);
 
     }
 
     private void stopGame() {
 
+        gameModel.setStarted(false);
+
         gameRoomDocument
-                .update(
-                        "started", false,
-                        "first_start", false
-                );
+                .set(gameModel);
 
     }
 
