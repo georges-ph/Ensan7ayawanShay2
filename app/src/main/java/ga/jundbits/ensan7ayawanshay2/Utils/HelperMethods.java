@@ -4,19 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -70,8 +72,13 @@ public class HelperMethods {
         return entriesCollectionRef(context, roomID).document(getCurrentUserID());
     }
 
-    public static void setCurrentUserOnline(Context context, boolean online) {
-        userDocumentRef(context, getCurrentUserID()).update("online", online);
+    private static DatabaseReference getUserRef(String userID) {
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        return firebaseDatabase.getReference().child("users_online").child(userID);
+    }
+
+    public static void setCurrentUserOnline(boolean online) {
+        getUserRef(HelperMethods.getCurrentUserID()).setValue(online);
     }
 
     public static long getCurrentTimestamp() {
@@ -124,26 +131,22 @@ public class HelperMethods {
 
     }
 
-    public static void isUserOnline(Context context, String userID, HelperMethodsCallback callback) {
+    public static void isUserOnline(String userID, HelperMethodsCallback callback) {
 
-        userDocumentRef(context, userID)
-                .addSnapshotListener((Activity) context, new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+        getUserRef(userID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                        if (error != null) {
-                            callback.onFailure(error);
-                            return;
-                        }
+                Boolean online = snapshot.getValue(Boolean.class);
+                callback.isOnline(online);
 
-                        if (documentSnapshot == null || !documentSnapshot.exists())
-                            return;
+            }
 
-                        UsersModel usersModel = documentSnapshot.toObject(UsersModel.class);
-                        callback.isOnline(usersModel.isOnline());
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
+            }
+        });
 
     }
 

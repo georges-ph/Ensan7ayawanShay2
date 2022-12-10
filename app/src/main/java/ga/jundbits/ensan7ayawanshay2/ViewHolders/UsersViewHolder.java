@@ -15,7 +15,6 @@ public class UsersViewHolder extends RecyclerView.ViewHolder {
     public ConstraintLayout layoutView;
     public CircleImageView imageView;
     public TextView nameView;
-    public CircleImageView onlineView;
 
     public UsersViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -23,7 +22,6 @@ public class UsersViewHolder extends RecyclerView.ViewHolder {
         layoutView = itemView.findViewById(R.id.users_list_item_layout);
         imageView = itemView.findViewById(R.id.users_list_item_image);
         nameView = itemView.findViewById(R.id.users_list_item_name);
-        onlineView = itemView.findViewById(R.id.users_list_item_online);
 
     }
 

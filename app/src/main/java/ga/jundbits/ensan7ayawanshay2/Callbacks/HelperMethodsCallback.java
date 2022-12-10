@@ -7,5 +7,5 @@ public interface HelperMethodsCallback {
 
     void onFailure(Exception e);
 
-    void isOnline(boolean online);
+    void isOnline(Boolean online);
 }

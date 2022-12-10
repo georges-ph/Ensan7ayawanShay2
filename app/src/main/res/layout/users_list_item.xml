@@ -33,14 +33,4 @@
         app:layout_constraintTop_toTopOf="@+id/users_list_item_image"
         tools:text="Name" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/users_list_item_online"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:src="@android:color/holo_green_light"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/users_list_item_image"
-        app:layout_constraintEnd_toEndOf="@+id/users_list_item_image"
-        tools:visibility="visible" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

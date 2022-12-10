@@ -7,17 +7,13 @@ public class UserOnlineActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-
-//        FirebaseHelper.setOnline(false);
-
+        HelperMethods.setCurrentUserOnline(false);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-//        FirebaseHelper.setOnline(true);
-
+        HelperMethods.setCurrentUserOnline(true);
     }
 
 }

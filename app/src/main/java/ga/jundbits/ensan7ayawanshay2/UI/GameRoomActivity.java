@@ -384,7 +384,7 @@ public class GameRoomActivity extends UserOnlineActivity {
                 }
 
                 @Override
-                public void isOnline(boolean online) {
+                public void isOnline(Boolean online) {
 
                 }
             });

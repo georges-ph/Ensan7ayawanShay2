@@ -53,13 +53,11 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersViewHolder> 
         String userID = usersModel.getId();
         String image = usersModel.getImage();
         String name = usersModel.getName();
-        boolean online = usersModel.isOnline();
 
         if (HelperMethods.getCurrentUserID().equals(userID)) {
 
             HelperMethods.setCurrentUserModel(usersModel);
 
-            holder.onlineView.setVisibility(View.GONE);
             holder.nameView.setVisibility(View.GONE);
             holder.imageView.setVisibility(View.GONE);
             holder.layoutView.setVisibility(View.GONE);
@@ -68,7 +66,6 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersViewHolder> 
         } else {
 
             Glide.with(context).load(image).into(holder.imageView);
-            holder.onlineView.setVisibility(online ? View.VISIBLE : View.GONE);
             holder.nameView.setText(name);
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {

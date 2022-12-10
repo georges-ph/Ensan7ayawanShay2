@@ -75,7 +75,7 @@ public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsViewHolder> 
             }
 
             @Override
-            public void isOnline(boolean online) {
+            public void isOnline(Boolean online) {
 
             }
         });

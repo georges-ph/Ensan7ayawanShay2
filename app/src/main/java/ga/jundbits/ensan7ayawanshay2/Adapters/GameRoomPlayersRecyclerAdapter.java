@@ -44,7 +44,7 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
     @Override
     public void onBindViewHolder(@NonNull GameRoomPlayersViewHolder holder, int position) {
 
-        HelperMethods.isUserOnline(context, playersIdList.get(position), new HelperMethodsCallback() {
+        HelperMethods.isUserOnline(playersIdList.get(position), new HelperMethodsCallback() {
             @Override
             public void onSuccess(UsersModel usersModel) {
 
@@ -56,11 +56,12 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
             }
 
             @Override
-            public void isOnline(boolean online) {
+            public void isOnline(Boolean online) {
 
                 holder.onlineView.setVisibility(online ? View.VISIBLE : View.GONE);
 
             }
+
         });
 
         holder.nameView.setText(namesList.get(position));

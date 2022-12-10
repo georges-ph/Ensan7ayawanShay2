@@ -336,8 +336,7 @@ public class MainActivity extends AppCompatActivity {
                 credential.getDisplayName(),
                 credential.getId(),
                 String.valueOf(credential.getProfilePictureUri()),
-                "",
-                true);
+                "");
 
         // Retrieving token here to ensure it is available and not null when proceeding
         FirebaseMessaging.getInstance()

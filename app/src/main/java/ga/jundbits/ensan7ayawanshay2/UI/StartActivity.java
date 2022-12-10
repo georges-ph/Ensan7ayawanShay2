@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.ads.AdView;
@@ -16,8 +15,9 @@ import com.google.android.gms.ads.AdView;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
 
-public class StartActivity extends AppCompatActivity {
+public class StartActivity extends UserOnlineActivity {
 
     // UI
     private Toolbar startToolbar;
@@ -115,18 +115,6 @@ public class StartActivity extends AppCompatActivity {
         browserIntent.setData(Uri.parse(feedbackURL));
         startActivity(browserIntent);
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        HelperMethods.setCurrentUserOnline(this, true);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        HelperMethods.setCurrentUserOnline(this, false);
     }
 
 }
