@@ -154,7 +154,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
 
                 for (UsersModel usersModel : invitedUsers) {
 
-                    if (usersModel.getId().equals(HelperMethods.getCurrentUserID()))
+                    if (usersModel.getId().equals(HelperMethods.getCurrentUserID()) || !usersModel.isNotifications())
                         continue;
 
                     sendInvitationNotification(usersModel.getToken());

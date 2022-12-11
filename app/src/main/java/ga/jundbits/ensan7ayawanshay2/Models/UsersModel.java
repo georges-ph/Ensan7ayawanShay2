@@ -3,17 +3,19 @@ package ga.jundbits.ensan7ayawanshay2.Models;
 public class UsersModel {
 
     private String id, name, email, image, token;
+    private Boolean notifications;
 
     public UsersModel() {
 
     }
 
-    public UsersModel(String id, String name, String email, String image, String token) {
+    public UsersModel(String id, String name, String email, String image, String token, Boolean notifications) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.image = image;
         this.token = token;
+        this.notifications = notifications;
     }
 
     public String getId() {
@@ -55,4 +57,13 @@ public class UsersModel {
     public void setToken(String token) {
         this.token = token;
     }
+
+    public Boolean isNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(Boolean notifications) {
+        this.notifications = notifications;
+    }
+
 }

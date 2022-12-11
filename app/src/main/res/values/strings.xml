@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">Ensan7ayawanShay2</string>
-	<string name="google_web_client_id">318793986604-2rt0nn2rag4rm9k7nihvk6ubbg1kl64f.apps.googleusercontent.com</string>
+    <string name="google_web_client_id">318793986604-2rt0nn2rag4rm9k7nihvk6ubbg1kl64f.apps.googleusercontent.com</string>
     <string name="google_sign_in_failed">Google sign in failed</string>
     <string name="sign_in_error">Sign in error</string>
     <string name="try_again">Try again</string>
     <string name="start">Start</string>
+    <string name="settings">Settings</string>
     <string name="create_room">Create room</string>
     <string name="join_room">Join room</string>
     <string name="invite">Invite</string>
@@ -39,4 +40,8 @@
     <string name="interstitial_game_room_ad_id">ca-app-pub-1121455192733194/1327285077</string>
     <string name="you_cannot_use_the_app_right_now">You cannot use the app right now</string>
     <string name="feedback">Feedback</string>
+    <string name="your_name">Your name</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="system">System</string>
 </resources>

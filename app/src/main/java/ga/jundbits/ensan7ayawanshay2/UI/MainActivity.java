@@ -6,9 +6,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -21,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.preference.PreferenceManager;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private ConstraintLayout mainLayout;
     private ProgressBar mainProgressBar;
     private ImageView mainImage;
-    private Button mainButton;
+    private Button mainStartButton, mainSettingsButton;
 
     // Google
     private SignInClient oneTapClient;
@@ -74,11 +77,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-
+        loadTheme();
         initVars();
         loadData();
         setOnClicks();
+
+    }
+
+    private void loadTheme() {
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String theme = preferences.getString("theme", "");
+
+        if (theme.equals("light")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else if (theme.equals("dark")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
 
     }
 
@@ -88,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
         mainLayout = findViewById(R.id.main_layout);
         mainProgressBar = findViewById(R.id.main_progress_bar);
         mainImage = findViewById(R.id.main_image);
-        mainButton = findViewById(R.id.main_button);
+        mainStartButton = findViewById(R.id.main_start_button);
+        mainSettingsButton = findViewById(R.id.main_settings_button);
 
         // Google
         oneTapClient = Identity.getSignInClient(this);
@@ -127,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
         createNotificationChannels();
 
-        if (mainButton.getVisibility() == View.GONE) {
+        if (mainStartButton.getVisibility() == View.GONE) {
 
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -141,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (getIntent().hasExtra("invitation_id"))
-            mainButton.setText(getString(R.string.join_room));
+            mainStartButton.setText(getString(R.string.join_room));
 
     }
 
@@ -153,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(Boolean aBoolean) {
 
                         boolean enabled = firebaseRemoteConfig.getBoolean("e7s_start_button_enabled");
-                        mainButton.setEnabled(enabled);
+                        mainStartButton.setEnabled(enabled);
 
                     }
                 });
@@ -194,27 +212,38 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
-                        mainButton.setVisibility(View.VISIBLE);
+                        mainStartButton.setVisibility(View.VISIBLE);
+                        mainSettingsButton.setVisibility(View.VISIBLE);
                     }
                 })
                 .playOn(mainImage);
 
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(mainLayout);
-        constraintSet.setVerticalBias(R.id.main_button, (float) 0.7);
+        constraintSet.setVerticalBias(R.id.main_start_button, (float) 0.7);
         constraintSet.applyTo(mainLayout);
 
     }
 
     private void setOnClicks() {
 
-        mainButton.setOnClickListener(new View.OnClickListener() {
+        mainStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 mainProgressBar.setVisibility(View.VISIBLE);
-                mainButton.setEnabled(false);
+                mainStartButton.setEnabled(false);
                 checkIfSignedIn();
+
+            }
+        });
+
+        mainSettingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(settingsIntent);
 
             }
         });
@@ -237,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                             } catch (IntentSender.SendIntentException e) {
 
                                 mainProgressBar.setVisibility(View.GONE);
-                                mainButton.setEnabled(true);
+                                mainStartButton.setEnabled(true);
 
                                 // TODO: this should be shown on the console after few hours
                                 //  I think I should find an alternative to log events in real time
@@ -266,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Exception e) {
 
                             mainProgressBar.setVisibility(View.GONE);
-                            mainButton.setEnabled(true);
+                            mainStartButton.setEnabled(true);
 
                             Toast.makeText(MainActivity.this, "No accounts found on this device", Toast.LENGTH_SHORT).show();
 
@@ -280,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
     private void goToStart() {
 
         mainProgressBar.setVisibility(View.GONE);
-        mainButton.setEnabled(true);
+        mainStartButton.setEnabled(true);
 
         if (getIntent().hasExtra("invitation_id")) {
 
@@ -318,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
 
                         mainProgressBar.setVisibility(View.GONE);
-                        mainButton.setEnabled(true);
+                        mainStartButton.setEnabled(true);
 
                         Toast.makeText(MainActivity.this, getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
 
@@ -336,7 +365,8 @@ public class MainActivity extends AppCompatActivity {
                 credential.getDisplayName(),
                 credential.getId(),
                 String.valueOf(credential.getProfilePictureUri()),
-                "");
+                "",
+                true);
 
         // Retrieving token here to ensure it is available and not null when proceeding
         FirebaseMessaging.getInstance()
@@ -358,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if (documentSnapshot.exists()) {
 
-                            mainButton.performClick();
+                            mainStartButton.performClick();
 
                         } else {
 
@@ -368,7 +398,7 @@ public class MainActivity extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Void aVoid) {
 
-                                            mainButton.performClick();
+                                            mainStartButton.performClick();
 
                                         }
                                     })
@@ -377,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
                                         public void onFailure(@NonNull Exception e) {
 
                                             mainProgressBar.setVisibility(View.GONE);
-                                            mainButton.setEnabled(true);
+                                            mainStartButton.setEnabled(true);
 
                                             Toast.makeText(MainActivity.this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
 
@@ -393,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
 
                         mainProgressBar.setVisibility(View.GONE);
-                        mainButton.setEnabled(true);
+                        mainStartButton.setEnabled(true);
 
                         Toast.makeText(MainActivity.this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
 
@@ -416,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (ApiException e) {
 
                 mainProgressBar.setVisibility(View.GONE);
-                mainButton.setEnabled(true);
+                mainStartButton.setEnabled(true);
 
                 Toast.makeText(this, getString(R.string.google_sign_in_failed), Toast.LENGTH_SHORT).show();
 
