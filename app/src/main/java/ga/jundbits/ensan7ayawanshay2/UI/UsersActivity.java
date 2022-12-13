@@ -35,7 +35,6 @@ import ga.jundbits.ensan7ayawanshay2.Callbacks.UsersRecyclerAdapterCallback;
 import ga.jundbits.ensan7ayawanshay2.Models.GameModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
 import okhttp3.Call;
@@ -87,7 +86,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
         usersAdView = findViewById(R.id.users_ad_view);
 
         // Google
-        AdMob.requestBannerAd(usersAdView);
+        HelperMethods.requestBannerAd(usersAdView);
 
         // long
         timestampMillis = getIntent().getLongExtra("timestamp_millis", 0);

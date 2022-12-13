@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -49,7 +48,6 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.FirebaseHelper;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 
 public class MainActivity extends AppCompatActivity {
@@ -137,9 +135,6 @@ public class MainActivity extends AppCompatActivity {
     private void loadData() {
 
         fetchRemoteConfig();
-
-        // TODO: migrating to helper methods separately
-        new FirebaseHelper(this);
 
         MobileAds.initialize(this);
 

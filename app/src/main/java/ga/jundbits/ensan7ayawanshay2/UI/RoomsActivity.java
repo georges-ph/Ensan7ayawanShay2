@@ -18,7 +18,6 @@ import java.util.List;
 import ga.jundbits.ensan7ayawanshay2.Adapters.RoomsRecyclerAdapter;
 import ga.jundbits.ensan7ayawanshay2.Models.RoomsModel;
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
 
@@ -48,7 +47,7 @@ public class RoomsActivity extends UserOnlineActivity {
         roomsAdView = findViewById(R.id.rooms_ad_view);
 
         // Google
-        AdMob.requestBannerAd(roomsAdView);
+        HelperMethods.requestBannerAd(roomsAdView);
 
     }
 

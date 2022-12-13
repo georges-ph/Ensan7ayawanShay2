@@ -33,11 +33,11 @@
     <string name="stopped">, STOPPED</string>
     <string name="games_invitations_notification_channel_id">GamesInvitations</string>
     <string name="banner_test_ad_id">ca-app-pub-3940256099942544/6300978111</string>
-    <string name="banner_start_ad_id">ca-app-pub-1121455192733194/6789934127</string>
-    <string name="banner_users_ad_id">ca-app-pub-1121455192733194/9592787908</string>
-    <string name="banner_rooms_ad_id">ca-app-pub-1121455192733194/2285143526</string>
+    <string name="banner_start_ad_id">ca-app-pub-9005509732663614/5204569146</string>
+    <string name="banner_users_ad_id">ca-app-pub-9005509732663614/3312354238</string>
+    <string name="banner_rooms_ad_id">ca-app-pub-9005509732663614/4226776814</string>
     <string name="interstitial_test_ad_id">ca-app-pub-3940256099942544/1033173712</string>
-    <string name="interstitial_game_room_ad_id">ca-app-pub-1121455192733194/1327285077</string>
+    <string name="interstitial_game_room_ad_id">ca-app-pub-9005509732663614/1779742723</string>
     <string name="you_cannot_use_the_app_right_now">You cannot use the app right now</string>
     <string name="feedback">Feedback</string>
     <string name="your_name">Your name</string>

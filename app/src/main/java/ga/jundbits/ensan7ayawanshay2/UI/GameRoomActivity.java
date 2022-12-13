@@ -33,15 +33,14 @@ import java.util.List;
 
 import ga.jundbits.ensan7ayawanshay2.Adapters.GameRoomEntriesRecyclerAdapter;
 import ga.jundbits.ensan7ayawanshay2.Adapters.GameRoomPlayersRecyclerAdapter;
-import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
 import ga.jundbits.ensan7ayawanshay2.Enums.FieldType;
 import ga.jundbits.ensan7ayawanshay2.Models.EntriesModel;
 import ga.jundbits.ensan7ayawanshay2.Models.GameModel;
 import ga.jundbits.ensan7ayawanshay2.Models.PlayerDataModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethodsImplementations;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
 
 public class GameRoomActivity extends UserOnlineActivity {
@@ -132,12 +131,11 @@ public class GameRoomActivity extends UserOnlineActivity {
 
         };
 
-        AdMob.requestInterstitialAd(this, new AdMob.Callback() {
+        HelperMethods.requestInterstitialAd(this, new HelperMethodsImplementations() {
             @Override
             public void onAdLoaded(InterstitialAd interstitialAd) {
 
                 gameRoomInterstitialAd = interstitialAd;
-
                 gameRoomInterstitialAd.setFullScreenContentCallback(fullScreenContentCallback);
 
             }
@@ -357,7 +355,7 @@ public class GameRoomActivity extends UserOnlineActivity {
 
             String playerID = gameModel.getPlayers().get(i);
 
-            HelperMethods.getUserData(this, playerID, new HelperMethodsCallback() {
+            HelperMethods.getUserData(this, playerID, new HelperMethodsImplementations() {
                 @Override
                 public void onSuccess(UsersModel usersModel) {
 
@@ -374,15 +372,6 @@ public class GameRoomActivity extends UserOnlineActivity {
 
                 }
 
-                @Override
-                public void onFailure(Exception e) {
-
-                }
-
-                @Override
-                public void isOnline(Boolean online) {
-
-                }
             });
 
         }

@@ -13,7 +13,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.gms.ads.AdView;
 
 import ga.jundbits.ensan7ayawanshay2.R;
-import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
 
@@ -47,7 +46,7 @@ public class StartActivity extends UserOnlineActivity {
         startJoinRoomButton = findViewById(R.id.start_join_room_button);
 
         // Google
-        AdMob.requestBannerAd(startAdView);
+        HelperMethods.requestBannerAd(startAdView);
 
     }
 

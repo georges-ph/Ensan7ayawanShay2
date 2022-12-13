@@ -10,11 +10,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
 import ga.jundbits.ensan7ayawanshay2.Models.PlayerDataModel;
-import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethodsImplementations;
 import ga.jundbits.ensan7ayawanshay2.ViewHolders.GameRoomPlayersViewHolder;
 
 public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoomPlayersViewHolder> {
@@ -43,16 +42,7 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
 
         PlayerDataModel playerScore = playerDataModelList.get(position);
 
-        HelperMethods.isUserOnline(playerScore.getId(), new HelperMethodsCallback() {
-            @Override
-            public void onSuccess(UsersModel usersModel) {
-
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-
-            }
+        HelperMethods.isUserOnline(playerScore.getId(), new HelperMethodsImplementations() {
 
             @Override
             public void isOnline(Boolean online) {
