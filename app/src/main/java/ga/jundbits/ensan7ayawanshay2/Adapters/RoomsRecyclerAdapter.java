@@ -20,6 +20,7 @@ import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.UI.GameRoomActivity;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethodsImplementations;
 import ga.jundbits.ensan7ayawanshay2.ViewHolders.RoomsViewHolder;
 
 public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsViewHolder> {
@@ -49,7 +50,7 @@ public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsViewHolder> 
         RoomsModel roomsModel = roomsList.get(position);
         String roomCreatorID = roomsModel.getCreated_by();
 
-        HelperMethods.getUserData(context, roomCreatorID, new HelperMethodsCallback() {
+        HelperMethods.getUserData(context, roomCreatorID, new HelperMethodsImplementations() {
             @Override
             public void onSuccess(UsersModel usersModel) {
 
@@ -70,10 +71,6 @@ public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsViewHolder> 
 
             }
 
-            @Override
-            public void isOnline(Boolean online) {
-
-            }
         });
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
