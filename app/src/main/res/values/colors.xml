@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="dark_black">#201F1F</color>
     <color name="grey">#808080</color>
-    <color name="beige_200">#C29D6B</color>
-    <color name="beige_500">#8E7048</color>
-    <color name="beige_700">#775B36</color>
-    <color name="red_200">#800000</color>
-    <color name="red_700">#450000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dark_sienna_1">#854749</color>
+    <color name="dark_sienna_2">#482728</color>
+    <color name="dark_sienna_3">#281516</color>
+    <color name="twilight_lavender_1">#B18192</color>
+    <color name="twilight_lavender_2">#7E4E60</color>
+    <color name="twilight_lavender_3">#4C2F39</color>
 </resources>

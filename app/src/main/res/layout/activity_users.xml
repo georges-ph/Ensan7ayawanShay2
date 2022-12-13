@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/backgroundColor"
     tools:context=".UI.UsersActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -34,11 +35,11 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
-        app:tint="@color/white"
         app:backgroundTint="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/users_recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_check_white" />
+        app:srcCompat="@drawable/ic_check_white"
+        app:tint="@color/white" />
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/users_ad_view"
