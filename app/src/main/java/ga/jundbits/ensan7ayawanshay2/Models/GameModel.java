@@ -6,7 +6,7 @@ import java.util.Map;
 public class GameModel {
 
     private boolean first_start, started;
-    private String letter;
+    private String letter, created_by;
     private List<String> players;
     private Map<String, Integer> scores;
     private long timestamp_millis;
@@ -15,10 +15,11 @@ public class GameModel {
 
     }
 
-    public GameModel(boolean first_start, boolean started, String letter, List<String> players, Map<String, Integer> scores, long timestamp_millis) {
+    public GameModel(boolean first_start, boolean started, String letter, String created_by, List<String> players, Map<String, Integer> scores, long timestamp_millis) {
         this.first_start = first_start;
         this.started = started;
         this.letter = letter;
+        this.created_by = created_by;
         this.players = players;
         this.scores = scores;
         this.timestamp_millis = timestamp_millis;
@@ -48,6 +49,14 @@ public class GameModel {
         this.letter = letter;
     }
 
+    public String getCreated_by() {
+        return created_by;
+    }
+
+    public void setCreated_by(String created_by) {
+        this.created_by = created_by;
+    }
+
     public List<String> getPlayers() {
         return players;
     }
@@ -71,4 +80,5 @@ public class GameModel {
     public void setTimestamp_millis(long timestamp_millis) {
         this.timestamp_millis = timestamp_millis;
     }
+
 }

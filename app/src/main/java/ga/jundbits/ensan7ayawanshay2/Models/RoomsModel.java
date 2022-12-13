@@ -1,27 +1,25 @@
 package ga.jundbits.ensan7ayawanshay2.Models;
 
-import java.util.List;
-
 public class RoomsModel {
 
-    private List<String> players;
+    private String created_by;
     private long timestamp_millis;
 
     public RoomsModel() {
 
     }
 
-    public RoomsModel(List<String> players, long timestamp_millis) {
-        this.players = players;
+    public RoomsModel(String created_by, long timestamp_millis) {
+        this.created_by = created_by;
         this.timestamp_millis = timestamp_millis;
     }
 
-    public List<String> getPlayers() {
-        return players;
+    public String getCreated_by() {
+        return created_by;
     }
 
-    public void setPlayers(List<String> players) {
-        this.players = players;
+    public void setCreated_by(String created_by) {
+        this.created_by = created_by;
     }
 
     public long getTimestamp_millis() {

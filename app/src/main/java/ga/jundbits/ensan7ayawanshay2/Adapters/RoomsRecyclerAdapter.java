@@ -6,7 +6,6 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +14,6 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
 import ga.jundbits.ensan7ayawanshay2.Models.RoomsModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
@@ -49,9 +47,7 @@ public class RoomsRecyclerAdapter extends RecyclerView.Adapter<RoomsViewHolder> 
     public void onBindViewHolder(@NonNull RoomsViewHolder holder, int position) {
 
         RoomsModel roomsModel = roomsList.get(position);
-
-        List<String> participants = roomsModel.getPlayers();
-        String roomCreatorID = participants.get(0);
+        String roomCreatorID = roomsModel.getCreated_by();
 
         HelperMethods.getUserData(context, roomCreatorID, new HelperMethodsCallback() {
             @Override

@@ -24,6 +24,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +146,13 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
             scoresMap.put(usersModel.getId(), 0);
         }
 
+        Collections.sort(playersID, new Comparator<String>() {
+            @Override
+            public int compare(String s1, String s2) {
+                return s1.compareTo(s2);
+            }
+        });
+
     }
 
     private void setOnClicks() {
@@ -247,7 +256,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
 
     private void createRoomInFirebase() {
 
-        GameModel gameModel = new GameModel(true, false, "A", playersID, scoresMap, timestampMillis);
+        GameModel gameModel = new GameModel(true, false, "A", HelperMethods.getCurrentUserID(), playersID, scoresMap, timestampMillis);
 
         HelperMethods
                 .roomDocumentRef(getApplicationContext(), String.valueOf(timestampMillis))
