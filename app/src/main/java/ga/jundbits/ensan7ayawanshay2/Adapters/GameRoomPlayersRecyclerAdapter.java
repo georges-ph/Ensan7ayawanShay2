@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
+import ga.jundbits.ensan7ayawanshay2.Models.PlayerDataModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
@@ -19,15 +20,11 @@ import ga.jundbits.ensan7ayawanshay2.ViewHolders.GameRoomPlayersViewHolder;
 public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoomPlayersViewHolder> {
 
     private Context context;
-    private List<String> playersIdList;
-    private List<String> namesList;
-    private List<Integer> scoresList;
+    private List<PlayerDataModel> playerDataModelList;
 
-    public GameRoomPlayersRecyclerAdapter(Context context, List<String> playersIdList, List<String> namesList, List<Integer> scoresList) {
+    public GameRoomPlayersRecyclerAdapter(Context context, List<PlayerDataModel> playerScoreList) {
         this.context = context;
-        this.playersIdList = playersIdList;
-        this.namesList = namesList;
-        this.scoresList = scoresList;
+        this.playerDataModelList = playerScoreList;
     }
 
     @NonNull
@@ -44,7 +41,9 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
     @Override
     public void onBindViewHolder(@NonNull GameRoomPlayersViewHolder holder, int position) {
 
-        HelperMethods.isUserOnline(playersIdList.get(position), new HelperMethodsCallback() {
+        PlayerDataModel playerScore = playerDataModelList.get(position);
+
+        HelperMethods.isUserOnline(playerScore.getId(), new HelperMethodsCallback() {
             @Override
             public void onSuccess(UsersModel usersModel) {
 
@@ -64,14 +63,14 @@ public class GameRoomPlayersRecyclerAdapter extends RecyclerView.Adapter<GameRoo
 
         });
 
-        holder.nameView.setText(namesList.get(position));
-        holder.scoreView.setText(String.valueOf(scoresList.get(position)));
+        holder.nameView.setText(playerScore.getName());
+        holder.scoreView.setText(String.valueOf(playerScore.getScore()));
 
     }
 
     @Override
     public int getItemCount() {
-        return namesList.size();
+        return playerDataModelList.size();
     }
 
 }

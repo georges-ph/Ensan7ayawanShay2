@@ -37,6 +37,7 @@ import ga.jundbits.ensan7ayawanshay2.Callbacks.HelperMethodsCallback;
 import ga.jundbits.ensan7ayawanshay2.Enums.FieldType;
 import ga.jundbits.ensan7ayawanshay2.Models.EntriesModel;
 import ga.jundbits.ensan7ayawanshay2.Models.GameModel;
+import ga.jundbits.ensan7ayawanshay2.Models.PlayerDataModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.AdMob;
@@ -75,7 +76,7 @@ public class GameRoomActivity extends UserOnlineActivity {
     private GameModel gameModel;
 
     // Lists
-    private List<String> namesList = new ArrayList<>();
+    private final List<PlayerDataModel> playerDataModelList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -316,9 +317,9 @@ public class GameRoomActivity extends UserOnlineActivity {
 
                             EntriesModel entriesModel = documentSnapshot.toObject(EntriesModel.class);
 
-                            ensanList.add(namesList.get(index) + ": " + entriesModel.getEnsan());
-                            hayawanList.add(namesList.get(index) + ": " + entriesModel.getHayawan());
-                            shay2List.add(namesList.get(index) + ": " + entriesModel.getShay2());
+                            ensanList.add(playerDataModelList.get(index).getName() + ": " + entriesModel.getEnsan());
+                            hayawanList.add(playerDataModelList.get(index).getName() + ": " + entriesModel.getHayawan());
+                            shay2List.add(playerDataModelList.get(index).getName() + ": " + entriesModel.getShay2());
 
                             index++;
 
@@ -350,10 +351,7 @@ public class GameRoomActivity extends UserOnlineActivity {
 
     private void loadPlayers() {
 
-        List<String> playersIdList = new ArrayList<>();
-        List<Integer> scoresList = new ArrayList<>();
-
-        namesList.clear();
+        playerDataModelList.clear();
 
         for (int i = 0; i < gameModel.getPlayers().size(); i++) {
 
@@ -363,13 +361,11 @@ public class GameRoomActivity extends UserOnlineActivity {
                 @Override
                 public void onSuccess(UsersModel usersModel) {
 
-                    playersIdList.add(playerID);
-                    namesList.add(usersModel.getName());
-                    scoresList.add(gameModel.getScores().get(playerID));
+                    playerDataModelList.add(new PlayerDataModel(playerID, usersModel.getName(), gameModel.getScores().get(playerID)));
 
-                    if (namesList.size() == gameModel.getPlayers().size()) {
+                    if (playerDataModelList.size() == gameModel.getPlayers().size()) {
 
-                        GameRoomPlayersRecyclerAdapter gameRoomPlayersRecyclerAdapter = new GameRoomPlayersRecyclerAdapter(GameRoomActivity.this, playersIdList, namesList, scoresList);
+                        GameRoomPlayersRecyclerAdapter gameRoomPlayersRecyclerAdapter = new GameRoomPlayersRecyclerAdapter(GameRoomActivity.this, playerDataModelList);
 
                         gameRoomPlayersRecyclerView.setLayoutManager(new LinearLayoutManager(GameRoomActivity.this));
                         gameRoomPlayersRecyclerView.setAdapter(gameRoomPlayersRecyclerAdapter);
