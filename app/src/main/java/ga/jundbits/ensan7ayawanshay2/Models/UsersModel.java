@@ -2,7 +2,7 @@ package ga.jundbits.ensan7ayawanshay2.Models;
 
 public class UsersModel {
 
-    private String id, name, email, image, token;
+    private String id, name, email, image, fcm_token;
     private Boolean notifications;
 
     public UsersModel() {
@@ -14,7 +14,7 @@ public class UsersModel {
         this.name = name;
         this.email = email;
         this.image = image;
-        this.token = token;
+        this.fcm_token = token;
         this.notifications = notifications;
     }
 
@@ -50,12 +50,12 @@ public class UsersModel {
         this.image = image;
     }
 
-    public String getToken() {
-        return token;
+    public String getFcm_token() {
+        return fcm_token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setFcm_token(String fcm_token) {
+        this.fcm_token = fcm_token;
     }
 
     public Boolean isNotifications() {

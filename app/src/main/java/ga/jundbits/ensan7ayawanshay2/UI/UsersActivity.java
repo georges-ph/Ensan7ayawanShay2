@@ -165,7 +165,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
                     if (usersModel.getId().equals(HelperMethods.getCurrentUserID()) || !usersModel.isNotifications())
                         continue;
 
-                    sendInvitationNotification(usersModel.getToken());
+                    sendInvitationNotification(usersModel.getFcm_token());
 
                 }
 

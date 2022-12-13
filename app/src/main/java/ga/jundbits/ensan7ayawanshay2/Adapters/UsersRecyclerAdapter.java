@@ -77,7 +77,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersViewHolder> 
                         holder.itemView.setBackgroundColor(Color.TRANSPARENT);
                     } else {
                         invitedUsers.add(usersModel);
-                        holder.itemView.setBackgroundColor(Color.GRAY);
+                        holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.twilight_lavender_1));
                     }
 
                     callback.invitationList(invitedUsers);

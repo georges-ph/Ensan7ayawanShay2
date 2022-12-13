@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String token) {
 
-                        usersModel.setToken(token);
+                        usersModel.setFcm_token(token);
 
                     }
                 });
