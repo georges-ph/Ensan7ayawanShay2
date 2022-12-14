@@ -58,7 +58,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
     // String
     // still using legacy http method and not http v1 api cause didn't know how to make it work
     private String FCM_API_URL = "https://fcm.googleapis.com/fcm/send";
-    private String serverKey = "AAAASjmaMiw:APA91bEum4z2usH6gddBuf4bxeRdDR18-HNFtASmIUfGlVrgd_2dAqDlWAaFgvYNsb414lcyGJaiwvMTLix6lVagXtsuOcBlxES7ZU-yq5x4J9Ms2JLoqvdxHG_aOy1o72-sXwbIKmI_";
+    private String serverKey = "AAAA0a2Y4p0:APA91bF0A0kJ3XVGU_QNdSc9esY-CEUIA-sISah9D36drzeMrYHtBRQfXDhQMkSbSsWwYCR_OW6seujQltj_AHCvDsHWdamvmKT4JHKaF8N8PzD1q3llQfsxu74LcOhJ55MwMdcYgYxc";
 
     // For invitations
     private final List<UsersModel> invitedUsers = new ArrayList<>();
