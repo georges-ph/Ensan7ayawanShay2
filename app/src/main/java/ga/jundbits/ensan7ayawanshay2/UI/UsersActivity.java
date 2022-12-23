@@ -36,6 +36,7 @@ import ga.jundbits.ensan7ayawanshay2.Models.GameModel;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import ga.jundbits.ensan7ayawanshay2.Utils.Secrets;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -58,7 +59,6 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
     // String
     // still using legacy http method and not http v1 api cause didn't know how to make it work
     private String FCM_API_URL = "https://fcm.googleapis.com/fcm/send";
-    private String serverKey = "AAAA0a2Y4p0:APA91bF0A0kJ3XVGU_QNdSc9esY-CEUIA-sISah9D36drzeMrYHtBRQfXDhQMkSbSsWwYCR_OW6seujQltj_AHCvDsHWdamvmKT4JHKaF8N8PzD1q3llQfsxu74LcOhJ55MwMdcYgYxc";
 
     // For invitations
     private final List<UsersModel> invitedUsers = new ArrayList<>();
@@ -224,7 +224,7 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
         okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(FCM_API_URL)
                 .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json.toString()))
-                .addHeader("Authorization", "key=" + serverKey)
+                .addHeader("Authorization", "key=" + Secrets.SERVER_KEY)
                 // .addHeader("Content-Type", "application/json")
                 .build();
 
