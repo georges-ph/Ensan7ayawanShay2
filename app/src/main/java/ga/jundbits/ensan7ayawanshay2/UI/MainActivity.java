@@ -35,7 +35,6 @@ import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,6 +48,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import ga.jundbits.ensan7ayawanshay2.Models.UsersModel;
 import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
+import io.sentry.Sentry;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -263,21 +263,7 @@ public class MainActivity extends AppCompatActivity {
                                 mainProgressBar.setVisibility(View.GONE);
                                 mainStartButton.setEnabled(true);
 
-                                // TODO: this should be shown on the console after few hours
-                                //  I think I should find an alternative to log events in real time
-                                // from here
-                                String stackTrace = "";
-
-                                for (int i = 0; i < e.getStackTrace().length; i++) {
-                                    stackTrace += e.getStackTrace()[i] + "\n";
-                                }
-
-                                Bundle bundle = new Bundle();
-                                bundle.putString("exception_message", e.getMessage());
-                                bundle.putString("stack_trace", stackTrace);
-
-                                FirebaseAnalytics.getInstance(getApplicationContext()).logEvent("app_error", bundle);
-                                // to here
+                                Sentry.captureException(e);
 
                                 Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
@@ -291,6 +277,8 @@ public class MainActivity extends AppCompatActivity {
 
                             mainProgressBar.setVisibility(View.GONE);
                             mainStartButton.setEnabled(true);
+
+                            Sentry.captureException(e);
 
                             Toast.makeText(MainActivity.this, "No accounts found on this device", Toast.LENGTH_SHORT).show();
 
@@ -343,6 +331,8 @@ public class MainActivity extends AppCompatActivity {
 
                         mainProgressBar.setVisibility(View.GONE);
                         mainStartButton.setEnabled(true);
+
+                        Sentry.captureException(e);
 
                         Toast.makeText(MainActivity.this, getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
 
@@ -404,6 +394,8 @@ public class MainActivity extends AppCompatActivity {
                                             mainProgressBar.setVisibility(View.GONE);
                                             mainStartButton.setEnabled(true);
 
+                                            Sentry.captureException(e);
+
                                             Toast.makeText(MainActivity.this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
 
                                         }
@@ -419,6 +411,8 @@ public class MainActivity extends AppCompatActivity {
 
                         mainProgressBar.setVisibility(View.GONE);
                         mainStartButton.setEnabled(true);
+
+                        Sentry.captureException(e);
 
                         Toast.makeText(MainActivity.this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
 
@@ -442,6 +436,8 @@ public class MainActivity extends AppCompatActivity {
 
                 mainProgressBar.setVisibility(View.GONE);
                 mainStartButton.setEnabled(true);
+
+                Sentry.captureException(e);
 
                 Toast.makeText(this, getString(R.string.google_sign_in_failed), Toast.LENGTH_SHORT).show();
 

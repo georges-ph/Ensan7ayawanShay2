@@ -19,6 +19,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -58,6 +62,9 @@ dependencies {
 
     // Firebase UI
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.2'
+
+    // Sentry
+    implementation 'io.sentry:sentry-android:6.10.0'
 
     // Circle Image View
     implementation 'de.hdodenhof:circleimageview:3.1.0'

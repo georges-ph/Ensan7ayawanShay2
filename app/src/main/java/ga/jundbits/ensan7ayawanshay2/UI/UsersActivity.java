@@ -2,7 +2,6 @@ package ga.jundbits.ensan7ayawanshay2.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -19,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +38,10 @@ import ga.jundbits.ensan7ayawanshay2.R;
 import ga.jundbits.ensan7ayawanshay2.Utils.HelperMethods;
 import ga.jundbits.ensan7ayawanshay2.Utils.Secrets;
 import ga.jundbits.ensan7ayawanshay2.Utils.UserOnlineActivity;
+import io.sentry.Scope;
+import io.sentry.ScopeCallback;
+import io.sentry.Sentry;
+import io.sentry.protocol.User;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -124,7 +128,11 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+
+                        Sentry.captureException(e);
+
                         Toast.makeText(UsersActivity.this, "Error getting users", Toast.LENGTH_SHORT).show();
+
                     }
                 });
 
@@ -211,12 +219,21 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
             json.put("to", token);
 
         } catch (JSONException e) {
-            String st = "";
-            for (int i = 0; i < e.getStackTrace().length; i++) {
-                st += e.getStackTrace()[i];
-            }
-            Log.d("msggg", "exception: \nmessage: " + e.getMessage() + "\ncause: " + e.getCause() + "\nstacktrace: " + st);
+
+            Sentry.captureException(e, new ScopeCallback() {
+                @Override
+                public void run(@NotNull Scope scope) {
+
+                    User user = new User();
+                    user.setId(HelperMethods.getCurrentUserID());
+
+                    scope.setUser(user);
+
+                }
+            });
+
             return;
+
         }
 
         OkHttpClient client = new OkHttpClient();
@@ -232,11 +249,17 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
             @Override
             public void onFailure(Call call, IOException e) {
 
-                String st = "";
-                for (int i = 0; i < e.getStackTrace().length; i++) {
-                    st += e.getStackTrace()[i];
-                }
-                Log.d("msggg", "error: \nmessage: " + e.getMessage() + "\ncause: " + e.getCause() + "\nstacktrace: " + st);
+                Sentry.captureException(e, new ScopeCallback() {
+                    @Override
+                    public void run(@NotNull Scope scope) {
+
+                        User user = new User();
+                        user.setId(HelperMethods.getCurrentUserID());
+
+                        scope.setUser(user);
+
+                    }
+                });
 
             }
 
@@ -245,7 +268,6 @@ public class UsersActivity extends UserOnlineActivity implements UsersRecyclerAd
 
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
-                    Log.d("msggg", "response: " + responseBody.string());
                 }
 
             }

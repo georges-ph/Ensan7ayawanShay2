@@ -75,6 +75,19 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/games_invitations_notification_channel_id" />
 
+        <meta-data
+            android:name="io.sentry.dsn"
+            android:value="https://4f3741ed9b5945d6b88caf6039cf8213@o4504408401903616.ingest.sentry.io/4504408404066304" />
+        <!-- Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+           We recommend adjusting this value in production. -->
+        <meta-data
+            android:name="io.sentry.traces.sample-rate"
+            android:value="1.0" />
+        <!-- Enable user interaction tracing to capture transactions for various UI events (such as clicks or scrolls). -->
+        <meta-data
+            android:name="io.sentry.traces.user-interaction.enable"
+            android:value="true" />
+
     </application>
 
 </manifest>
