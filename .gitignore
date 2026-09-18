@@ -1,33 +1,57 @@
-# Gradle files
-.gradle/
-build/
-
-# Local configuration file (sdk path, etc)
-local.properties
-
-# Log/OS Files
+# Miscellaneous
+*.class
 *.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
 
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.apk
-output.json
-
-# IntelliJ
+# IntelliJ related
 *.iml
+*.ipr
+*.iws
 .idea/
 
-# Keystore files
-*.jks
-*.keystore
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
 
-# Google Services (e.g. APIs or Firebase)
-google-services.json
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
 
-# Android Profiling
-*.hprof
+# Symbolication related
+app.*.symbols
 
-# Secrets
-app/src/main/java/ga/jundbits/ensan7ayawanshay2/Utils/Secrets.java
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Firebase config (kept local, same as the original app's .gitignore) -
+# not strictly secret, but regenerate locally with `flutterfire configure`
+# rather than committing.
+android/app/google-services.json
+lib/firebase_options.dart
+
+# Server-side secrets (e.g. the Raspberry Pi push-notification backend's
+# Firebase Admin service account key) must never be committed.
+*serviceAccountKey.json
+*.env
+.env
