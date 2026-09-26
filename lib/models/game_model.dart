@@ -5,7 +5,11 @@ class GameModel {
   final String createdBy;
   final List<String> players;
   final Map<String, int> scores;
+  final String code;
   final int timestampMillis;
+  final int roundStartedMillis;
+  final int lastRoundSeconds;
+  final int roundsPlayed;
 
   const GameModel({
     required this.firstStart,
@@ -14,7 +18,11 @@ class GameModel {
     required this.createdBy,
     required this.players,
     required this.scores,
+    required this.code,
     required this.timestampMillis,
+    this.roundStartedMillis = 0,
+    this.lastRoundSeconds = 0,
+    this.roundsPlayed = 0,
   });
 
   factory GameModel.fromJson(Map<String, dynamic> json) {
@@ -28,7 +36,12 @@ class GameModel {
             (key, value) => MapEntry(key as String, (value as num).toInt()),
           ) ??
           const {},
+      code: json['code'] as String? ?? '',
       timestampMillis: (json['timestamp_millis'] as num?)?.toInt() ?? 0,
+      roundStartedMillis:
+          (json['round_started_millis'] as num?)?.toInt() ?? 0,
+      lastRoundSeconds: (json['last_round_seconds'] as num?)?.toInt() ?? 0,
+      roundsPlayed: (json['rounds_played'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -40,7 +53,11 @@ class GameModel {
       'created_by': createdBy,
       'players': players,
       'scores': scores,
+      'code': code,
       'timestamp_millis': timestampMillis,
+      'round_started_millis': roundStartedMillis,
+      'last_round_seconds': lastRoundSeconds,
+      'rounds_played': roundsPlayed,
     };
   }
 
@@ -57,7 +74,11 @@ class GameModel {
       createdBy: createdBy,
       players: players,
       scores: scores ?? this.scores,
+      code: code,
       timestampMillis: timestampMillis,
+      roundStartedMillis: roundStartedMillis,
+      lastRoundSeconds: lastRoundSeconds,
+      roundsPlayed: roundsPlayed,
     );
   }
 }

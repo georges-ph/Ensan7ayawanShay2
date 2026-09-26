@@ -10,3 +10,14 @@ final allUsersProvider = FutureProvider<List<UsersModel>>((ref) async {
 
   return snapshot.docs.map((doc) => UsersModel.fromJson(doc.data())).toList();
 });
+
+/// [allUsersProvider] keyed by id, for screens that need to look up
+/// another user's profile (e.g. a room's creator) -- reuses the same list
+/// read instead of an extra per-user document fetch.
+final usersByIdProvider = Provider<AsyncValue<Map<String, UsersModel>>>((
+  ref,
+) {
+  return ref
+      .watch(allUsersProvider)
+      .whenData((users) => {for (final u in users) u.id: u});
+});

@@ -27,6 +27,15 @@ final presenceServiceProvider = Provider<PresenceService>((ref) {
   return PresenceService(ref.watch(firebaseDatabaseProvider));
 });
 
+/// A user's online status, shared by userId instead of every watcher
+/// opening its own Realtime Database listener on every rebuild.
+final onlineStatusProvider = StreamProvider.family<bool, String>((
+  ref,
+  userId,
+) {
+  return ref.watch(presenceServiceProvider).onlineStatus(userId);
+});
+
 final gameServiceProvider = Provider<GameService>((ref) {
   return GameService();
 });
