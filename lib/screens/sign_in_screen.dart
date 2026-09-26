@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../providers/firebase_providers.dart';
 import '../widgets/gradient_app_bar.dart';
@@ -43,6 +44,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       if (mounted) context.pushReplacement('/start');
     } on FirebaseAuthException catch (e) {
       if (mounted) setState(() => _error = _messageFor(e));
+    } on GoogleSignInException catch (e) {
+      // The user backing out of the native account picker isn't an
+      // error worth showing - just quietly return to the form.
+      if (e.code != GoogleSignInExceptionCode.canceled && mounted) {
+        setState(() => _error = 'Sign in error, please try again');
+      }
     } catch (_) {
       if (mounted) setState(() => _error = 'Sign in error, please try again');
     } finally {

@@ -1,0 +1,10 @@
+## Copy this file to android/key.properties (gitignored) and fill in your
+## real values. Never commit the real file - it holds your signing
+## credentials, and losing/leaking them is effectively unrecoverable for
+## an already-distributed app (you can't sign updates with a different
+## key and have existing installs accept them as an update).
+
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+storeFile=C:/Projects/keystore.jks

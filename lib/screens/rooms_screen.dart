@@ -69,8 +69,15 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
   Widget build(BuildContext context) {
     final roomsAsync = ref.watch(myRoomsProvider);
     final currentUserId = ref.watch(authStateChangesProvider).value?.uid;
-    final usersById = ref.watch(usersByIdProvider).valueOrNull ?? const {};
     final scheme = Theme.of(context).colorScheme;
+
+    // Only fetch profiles for creators of rooms actually visible right
+    // now, keyed so unrelated rebuilds reuse the same cached fetch.
+    final creatorIds = usersByIdKey(
+      roomsAsync.valueOrNull?.map((room) => room.createdBy) ?? const [],
+    );
+    final usersById =
+        ref.watch(usersByIdProvider(creatorIds)).valueOrNull ?? const {};
 
     return Scaffold(
       appBar: const GradientAppBar(title: 'Join room'),

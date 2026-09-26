@@ -8,8 +8,8 @@ import '../services/firestore_paths.dart';
 import '../widgets/gradient_app_bar.dart';
 import '../widgets/user_avatar.dart';
 
-/// Equivalent to SettingsActivity + SettingsFragment: name, theme and
-/// notifications preferences, plus sign out.
+/// Equivalent to SettingsActivity + SettingsFragment: name and theme
+/// preferences, plus sign out.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -29,12 +29,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _saveName(String userId, String name) async {
     await FirestorePaths.userDocument(userId).update({'name': name});
-  }
-
-  Future<void> _saveNotifications(String userId, bool value) async {
-    await FirestorePaths.userDocument(userId).update({
-      'notifications': value,
-    });
   }
 
   @override
@@ -113,16 +107,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             .setThemeMode(selection.first);
                       },
                     ),
-                    if (user != null) ...[
-                      const Divider(height: 32),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Notifications'),
-                        value: user.notifications,
-                        onChanged: (value) =>
-                            _saveNotifications(userId!, value),
-                      ),
-                    ],
                   ],
                 ),
               ),

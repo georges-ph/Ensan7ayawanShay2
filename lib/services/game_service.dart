@@ -60,7 +60,7 @@ class GameService {
     required List<String> playerIds,
   }) async {
     final scores = {for (final id in playerIds) id: 0};
-    final code = await _uniqueRoomCode(roomId);
+    final code = await _uniqueRoomCode();
 
     final gameModel = GameModel(
       firstStart: true,
@@ -76,22 +76,17 @@ class GameService {
     await FirestorePaths.roomDocument(roomId).set(gameModel.toJson());
   }
 
-  /// The room's code is normally its id's last few digits (short and easy
-  /// to type), but that alone can repeat - a millisecond timestamp's
-  /// trailing digits cycle back to the same value every ~17 minutes. Falls
-  /// back to a short random code on the rare collision with another room
-  /// that's still findable.
-  Future<String> _uniqueRoomCode(String roomId) async {
-    var candidate = roomId.substring(
-      max(0, roomId.length - _codeLength),
-    );
-
+  /// A short, easy-to-share room code. Always a full random draw from
+  /// [_codeAlphabet] rather than anything derived from the room id, so
+  /// codes don't repeat just because two rooms happen to be created
+  /// around the same time.
+  Future<String> _uniqueRoomCode() async {
     for (var attempt = 0; attempt < 5; attempt++) {
+      final candidate = _randomCode();
       final existing = await findRoomIdByCode(candidate);
       if (existing == null) return candidate;
-      candidate = _randomCode();
     }
-    return candidate;
+    return _randomCode();
   }
 
   String _randomCode() {

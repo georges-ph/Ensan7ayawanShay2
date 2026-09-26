@@ -43,12 +43,34 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/.kotlin/
+
+# Firebase CLI's local deploy cache (hosting).
+/.firebase/
 
 # Firebase config (kept local, same as the original app's .gitignore) -
 # not strictly secret, but regenerate locally with `flutterfire configure`
-# rather than committing.
+# rather than committing. Dev and prod are separate projects/accounts
+# (see lib/main.dart) - google-services.json is whichever one is
+# currently active for local builds; the dev/prod suffixed copies are
+# kept around so swapping between them doesn't require re-running
+# flutterfire configure each time.
 android/app/google-services.json
-lib/firebase_options.dart
+android/app/google-services-dev.json
+android/app/google-services-prod.json
+lib/firebase_options_dev.dart
+lib/firebase_options_prod.dart
+
+# Also excludes the actual Firebase project ids from the repo (see
+# firebase.json.example) - regenerate with `firebase target:apply` etc.,
+# per the README.
+firebase.json
+.firebaserc
+
+# Release signing - never commit the keystore or its credentials.
+android/key.properties
+*.jks
+*.keystore
 
 # Server-side secrets (e.g. the Raspberry Pi push-notification backend's
 # Firebase Admin service account key) must never be committed.

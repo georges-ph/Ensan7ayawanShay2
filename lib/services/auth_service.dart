@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'firestore_paths.dart';
 import '../models/users_model.dart';
@@ -15,14 +16,24 @@ class AuthService {
 
   /// Signs in with Google and ensures a matching Users document exists,
   /// mirroring the original app's registerWithFirebase step.
+  ///
+  /// Web uses Firebase Auth's own hosted popup. Android uses Google's
+  /// native Credential Manager account picker (via `google_sign_in`,
+  /// initialized once in main.dart) rather than `signInWithProvider`'s
+  /// generic browser-tab OAuth flow - no browser step, no domain shown,
+  /// consistent with how most native apps handle this.
   Future<UsersModel> signInWithGoogle() async {
-    final provider = GoogleAuthProvider();
+    if (kIsWeb) {
+      final credential = await _auth.signInWithPopup(GoogleAuthProvider());
+      return _ensureUserDocument(credential.user!);
+    }
 
-    final credential = kIsWeb
-        ? await _auth.signInWithPopup(provider)
-        : await _auth.signInWithProvider(provider);
-
-    return _ensureUserDocument(credential.user!);
+    final account = await GoogleSignIn.instance.authenticate();
+    final credential = GoogleAuthProvider.credential(
+      idToken: account.authentication.idToken,
+    );
+    final userCredential = await _auth.signInWithCredential(credential);
+    return _ensureUserDocument(userCredential.user!);
   }
 
   /// Single email/password entry point: creates the Firebase account if the
@@ -64,8 +75,6 @@ class AuthService {
       name: user.displayName ?? _nameFromEmail(user.email) ?? '',
       email: user.email ?? '',
       image: user.photoURL ?? '',
-      fcmToken: '',
-      notifications: true,
     );
 
     await userDoc.set(usersModel.toJson());
@@ -79,5 +88,13 @@ class AuthService {
     return email.split('@').first;
   }
 
-  Future<void> signOut() => _auth.signOut();
+  Future<void> signOut() async {
+    if (!kIsWeb) {
+      // So the next sign-in shows the account picker again instead of
+      // silently reusing whichever account was last used - relevant since
+      // this is a shared party-game app, often on a shared device.
+      await GoogleSignIn.instance.signOut();
+    }
+    await _auth.signOut();
+  }
 }

@@ -1,0 +1,14 @@
+rules_version = '2';
+
+// Every app sharing this Firebase project gets its own top-level
+// collection (this one is Ensan7ayawanShay2/AppCollections/*). Each app's
+// rules only ever grant access within its own subtree, and Firestore
+// denies anything with no matching rule by default - so apps can't read
+// or write into each other's data.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /Ensan7ayawanShay2/AppCollections/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

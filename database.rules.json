@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "users_online": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isBoolean()"
+      }
+    }
+  }
+}
