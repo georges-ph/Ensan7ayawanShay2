@@ -259,8 +259,8 @@ class _GameRoomScreenState extends ConsumerState<GameRoomScreen> {
                     game.firstStart
                         ? 'Press start to draw a letter'
                         : stopped
-                            ? 'Round stopped'
-                            : "Go!",
+                        ? 'Round stopped'
+                        : "Go!",
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 8),
@@ -652,10 +652,7 @@ class _PlayersRow extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: AppColors.success,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: scheme.surface,
-                              width: 2,
-                            ),
+                            border: Border.all(color: scheme.surface, width: 2),
                           ),
                         ),
                       ),

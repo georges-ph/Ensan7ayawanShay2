@@ -113,7 +113,10 @@ class GameService {
   /// Stops the round, recording how long it ran and bumping the rounds
   /// counter - both persisted so they stay correct for anyone who reloads
   /// or joins after the round already ended.
-  Future<void> stopRound(String roomId, {required int roundStartedMillis}) async {
+  Future<void> stopRound(
+    String roomId, {
+    required int roundStartedMillis,
+  }) async {
     final elapsedSeconds = roundStartedMillis == 0
         ? 0
         : ((currentTimestampMillis() - roundStartedMillis) / 1000).round();
@@ -134,9 +137,9 @@ class GameService {
 
   Future<void> addToOwnScore(String roomId, String userId, int delta) async {
     if (delta == 0) return;
-    await FirestorePaths.roomDocument(roomId).update({
-      'scores.$userId': FieldValue.increment(delta),
-    });
+    await FirestorePaths.roomDocument(
+      roomId,
+    ).update({'scores.$userId': FieldValue.increment(delta)});
   }
 
   Future<void> saveOwnEntries(
@@ -162,7 +165,8 @@ class GameService {
   Future<Map<String, EntriesModel>> loadAllEntries(String roomId) async {
     final snapshot = await FirestorePaths.entriesCollection(roomId).get();
     return {
-      for (final doc in snapshot.docs) doc.id: EntriesModel.fromJson(doc.data()),
+      for (final doc in snapshot.docs)
+        doc.id: EntriesModel.fromJson(doc.data()),
     };
   }
 }

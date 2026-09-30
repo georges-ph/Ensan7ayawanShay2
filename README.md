@@ -1,5 +1,8 @@
 # Ensan 7ayawan Shay2 (انسان حيوان شيء)
 
+[![CI](https://github.com/georges-ph/Ensan7ayawanShay2/actions/workflows/checks.yml/badge.svg)](https://github.com/georges-ph/Ensan7ayawanShay2/actions/workflows/checks.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A real-time multiplayer word game: pick a random letter, then race to name a
 person/character, an animal, and a thing that all start with it. Players
 self-score each round and compare totals live.
@@ -38,3 +41,12 @@ Nothing Firebase-specific is committed. Bring your own project(s):
 ## Status
 
 Core gameplay is complete: auth, create/join rooms, live rounds, settings.
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get set
+up and submit a change.
+
+## License
+
+[MIT](LICENSE)

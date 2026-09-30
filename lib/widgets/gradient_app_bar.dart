@@ -37,9 +37,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
-      flexibleSpace: Container(
-        decoration: BoxDecoration(gradient: gradient),
-      ),
+      flexibleSpace: Container(decoration: BoxDecoration(gradient: gradient)),
     );
   }
 }

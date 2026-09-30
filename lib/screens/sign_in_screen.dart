@@ -126,10 +126,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        width: 88,
-                      ),
+                      child: Image.asset('assets/images/logo.png', width: 88),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -200,21 +197,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Expanded(child: Divider(color: scheme.outlineVariant)),
+                          Expanded(
+                            child: Divider(color: scheme.outlineVariant),
+                          ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: Text(
                               'or',
                               style: TextStyle(
-                                color: scheme.onSurface.withValues(
-                                  alpha: 0.5,
-                                ),
+                                color: scheme.onSurface.withValues(alpha: 0.5),
                               ),
                             ),
                           ),
-                          Expanded(child: Divider(color: scheme.outlineVariant)),
+                          Expanded(
+                            child: Divider(color: scheme.outlineVariant),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),

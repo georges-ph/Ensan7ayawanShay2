@@ -17,9 +17,7 @@ final currentUserModelProvider = StreamProvider<UsersModel?>((ref) {
     return Stream.value(null);
   }
 
-  return FirestorePaths.userDocument(authState.uid).snapshots().map((
-    snapshot,
-  ) {
+  return FirestorePaths.userDocument(authState.uid).snapshots().map((snapshot) {
     final data = snapshot.data();
     if (data == null) return null;
     return UsersModel.fromJson(data);

@@ -15,10 +15,7 @@ final appRouter = GoRouter(
       builder: (context, state) => const SignInScreen(),
     ),
     GoRoute(path: '/start', builder: (context, state) => const StartScreen()),
-    GoRoute(
-      path: '/rooms',
-      builder: (context, state) => const RoomsScreen(),
-    ),
+    GoRoute(path: '/rooms', builder: (context, state) => const RoomsScreen()),
     GoRoute(
       path: '/game/:roomId',
       builder: (context, state) =>

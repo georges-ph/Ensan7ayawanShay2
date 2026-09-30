@@ -60,10 +60,7 @@ class HomeScreen extends ConsumerWidget {
                     curve: Curves.easeOutBack,
                     builder: (context, value, child) => Transform.scale(
                       scale: value.clamp(0, 1.2),
-                      child: Opacity(
-                        opacity: value.clamp(0, 1),
-                        child: child,
-                      ),
+                      child: Opacity(opacity: value.clamp(0, 1), child: child),
                     ),
                     child: Container(
                       padding: const EdgeInsets.all(20),
@@ -78,10 +75,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        width: 120,
-                      ),
+                      child: Image.asset('assets/images/logo.png', width: 120),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -91,8 +85,9 @@ class HomeScreen extends ConsumerWidget {
                     child: Text(
                       'Ensan · 7ayawan · Shay2',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(color: Colors.white),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(color: Colors.white),
                     ),
                   ),
                   const SizedBox(height: 6),

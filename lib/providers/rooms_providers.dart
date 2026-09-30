@@ -17,9 +17,7 @@ final myRoomsProvider = StreamProvider<List<RoomsModel>>((ref) {
         final rooms = snapshot.docs
             .map((doc) => RoomsModel.fromJson(doc.data()))
             .toList();
-        rooms.sort(
-          (a, b) => b.timestampMillis.compareTo(a.timestampMillis),
-        );
+        rooms.sort((a, b) => b.timestampMillis.compareTo(a.timestampMillis));
         return rooms;
       });
 });

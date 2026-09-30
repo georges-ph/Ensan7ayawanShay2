@@ -72,8 +72,8 @@ android/key.properties
 *.jks
 *.keystore
 
-# Server-side secrets (e.g. the Raspberry Pi push-notification backend's
-# Firebase Admin service account key) must never be committed.
+# Server-side secrets (e.g. a Firebase Admin service account key) must
+# never be committed.
 *serviceAccountKey.json
 *.env
 .env

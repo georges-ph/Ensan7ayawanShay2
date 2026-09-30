@@ -3,11 +3,7 @@ class EntriesModel {
   final String hayawan;
   final String shay2;
 
-  const EntriesModel({
-    this.ensan = '',
-    this.hayawan = '',
-    this.shay2 = '',
-  });
+  const EntriesModel({this.ensan = '', this.hayawan = '', this.shay2 = ''});
 
   factory EntriesModel.fromJson(Map<String, dynamic> json) {
     return EntriesModel(
@@ -18,10 +14,6 @@ class EntriesModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'ensan': ensan,
-      'hayawan': hayawan,
-      'shay2': shay2,
-    };
+    return {'ensan': ensan, 'hayawan': hayawan, 'shay2': shay2};
   }
 }

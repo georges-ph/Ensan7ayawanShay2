@@ -159,19 +159,14 @@ ThemeData _buildTheme(ColorScheme scheme) {
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: scheme.error, width: 1.5),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: scheme.primary,
         foregroundColor: scheme.onPrimary,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         textStyle: GoogleFonts.fredoka(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -186,9 +181,8 @@ ThemeData _buildTheme(ColorScheme scheme) {
     ),
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? scheme.primary
-            : null,
+        (states) =>
+            states.contains(WidgetState.selected) ? scheme.primary : null,
       ),
       trackColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)

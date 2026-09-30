@@ -32,14 +32,14 @@ class GameModel {
       letter: json['letter'] as String? ?? '',
       createdBy: json['created_by'] as String? ?? '',
       players: List<String>.from(json['players'] as List? ?? const []),
-      scores: (json['scores'] as Map?)?.map(
+      scores:
+          (json['scores'] as Map?)?.map(
             (key, value) => MapEntry(key as String, (value as num).toInt()),
           ) ??
           const {},
       code: json['code'] as String? ?? '',
       timestampMillis: (json['timestamp_millis'] as num?)?.toInt() ?? 0,
-      roundStartedMillis:
-          (json['round_started_millis'] as num?)?.toInt() ?? 0,
+      roundStartedMillis: (json['round_started_millis'] as num?)?.toInt() ?? 0,
       lastRoundSeconds: (json['last_round_seconds'] as num?)?.toInt() ?? 0,
       roundsPlayed: (json['rounds_played'] as num?)?.toInt() ?? 0,
     );

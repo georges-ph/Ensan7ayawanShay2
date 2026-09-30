@@ -2,10 +2,7 @@ class RoomsModel {
   final String createdBy;
   final int timestampMillis;
 
-  const RoomsModel({
-    required this.createdBy,
-    required this.timestampMillis,
-  });
+  const RoomsModel({required this.createdBy, required this.timestampMillis});
 
   factory RoomsModel.fromJson(Map<String, dynamic> json) {
     return RoomsModel(

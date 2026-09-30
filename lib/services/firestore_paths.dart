@@ -9,9 +9,7 @@ class FirestorePaths {
   static const String appName = 'Ensan7ayawanShay2';
 
   static DocumentReference<Map<String, dynamic>> appDocument() {
-    return FirebaseFirestore.instance
-        .collection(appName)
-        .doc('AppCollections');
+    return FirebaseFirestore.instance.collection(appName).doc('AppCollections');
   }
 
   static CollectionReference<Map<String, dynamic>> usersCollection() {

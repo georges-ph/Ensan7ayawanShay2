@@ -18,10 +18,7 @@ String usersByIdKey(Iterable<String> ids) {
 /// this keeps the Firestore rules from having to allow anyone to dump the
 /// whole user directory (names, emails, photos) just to support that.
 final usersByIdProvider =
-    FutureProvider.family<Map<String, UsersModel>, String>((
-      ref,
-      idsKey,
-    ) async {
+    FutureProvider.family<Map<String, UsersModel>, String>((ref, idsKey) async {
       final ids = idsKey.isEmpty ? const <String>[] : idsKey.split(',');
       if (ids.isEmpty) return {};
 
@@ -31,6 +28,7 @@ final usersByIdProvider =
 
       return {
         for (final snapshot in snapshots)
-          if (snapshot.exists) snapshot.id: UsersModel.fromJson(snapshot.data()!),
+          if (snapshot.exists)
+            snapshot.id: UsersModel.fromJson(snapshot.data()!),
       };
     });
