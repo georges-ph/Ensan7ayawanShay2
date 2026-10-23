@@ -13,7 +13,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          # Pinned to the version used for local dev: `channel: stable`
+          # floats forward and can fail CI with no change on our side.
+          flutter-version: 3.41.5
+          cache: true
       - run: flutter pub get
       - name: Generate placeholder Firebase config
         # firebase_options_{dev,prod}.dart are gitignored (per-developer,

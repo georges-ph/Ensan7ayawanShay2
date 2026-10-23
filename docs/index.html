@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ensan 7ayawan Shay2 — the fast-paced word game for friends</title>
+<meta name="description" content="A letter is drawn, then everyone races to name a person, an animal and a thing that start with it. Live multiplayer rooms with a shared code, on Android and in the browser. Free and open source.">
+<link rel="icon" href="logo.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://georges-ph.github.io/Ensan7ayawanShay2/">
+<meta property="og:title" content="Ensan 7ayawan Shay2 — the fast-paced word game for friends">
+<meta property="og:description" content="A letter is drawn, then everyone races to name a person, an animal and a thing that start with it. Play in the browser or on Android.">
+<meta property="og:image" content="https://georges-ph.github.io/Ensan7ayawanShay2/screenshots/game-room.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ensan 7ayawan Shay2 — the fast-paced word game for friends">
+<meta name="twitter:description" content="A letter is drawn, then everyone races to name a person, an animal and a thing that start with it.">
+<meta name="twitter:image" content="https://georges-ph.github.io/Ensan7ayawanShay2/screenshots/game-room.jpg">
+<style>
+  /* Same layout as the other project pages (sticky nav, hero with a phone
+     mockup, steps, feature cards, screenshots, downloads), in the app's own
+     identity: violet to coral gradient, the three category colors, Fredoka
+     for headings and Nunito for text, as in lib/app.dart. */
+  :root {
+    --bg: #f7f4ff;
+    --bg-elev: #ffffff;
+    --bg-sunken: #f0ebff;
+    --fg: #241d3d;
+    --fg-muted: #6f678c;
+    --border: #e4ddfa;
+    --accent: #6c4cf1;
+    --accent-2: #ff6b9e;
+    --ensan: #2f8fdc;
+    --hayawan: #1fae5b;
+    --shay2: #e6862a;
+    --radius: 22px;
+    --shadow: 0 20px 60px -25px rgba(40, 20, 90, 0.35);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #140f22;
+      --bg-elev: #1e1733;
+      --bg-sunken: #271f42;
+      --fg: #f1ecff;
+      --fg-muted: #a59cc4;
+      --border: #2e2549;
+      --accent: #9b87ff;
+      --accent-2: #ff6b9e;
+      --ensan: #3da9fc;
+      --hayawan: #2ed573;
+      --shay2: #ff9f43;
+      --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.6);
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  /* Sections stop below the sticky nav instead of under it. */
+  [id] { scroll-margin-top: 76px; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding-inline: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  h1, h2, h3, .brand, .btn, .step-num { font-family: "Fredoka", "Nunito", sans-serif; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  .wrap { max-width: 1140px; margin-inline: auto; }
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ---- Nav ---- */
+  nav.top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 16px;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid transparent;
+  }
+  nav.top.scrolled { border-bottom-color: var(--border); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; }
+  .brand img { width: 32px; height: 32px; border-radius: 9px; }
+  .navlinks { display: flex; align-items: center; gap: 26px; font-size: 15px; font-weight: 700; color: var(--fg-muted); }
+  .navlinks a:hover { color: var(--fg); }
+  .navcta { display: flex; align-items: center; gap: 10px; }
+  @media (max-width: 760px) { .navlinks { display: none; } }
+  @media (max-width: 420px) { .navcta .btn-ghost { display: none; } }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 15px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+  .btn-ghost { background: transparent; border-color: var(--border); color: var(--fg); }
+
+  /* ---- Hero ---- */
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 40px;
+    align-items: center;
+    padding-block: 64px 40px;
+    overflow: clip;
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-block: 36px 16px; }
+    .hero-visual { order: -1; }
+  }
+  .glow {
+    position: absolute;
+    width: 620px;
+    height: 620px;
+    right: -180px;
+    top: -160px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 40%, transparent), color-mix(in srgb, var(--accent) 25%, transparent) 45%, transparent 70%);
+    filter: blur(10px);
+    animation: pulse 7s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.06); }
+  }
+  @media (prefers-reduced-motion: reduce) { .glow { animation: none; } }
+
+  .hero-copy { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 22px; }
+  .hero h1 { font-size: clamp(36px, 5.4vw, 60px); font-weight: 600; line-height: 1.05; }
+  .hero h1 .c-ensan { color: var(--ensan); }
+  .hero h1 .c-hayawan { color: var(--hayawan); }
+  .hero h1 .c-shay2 { color: var(--shay2); }
+  .hero-ar { font-size: 20px; font-weight: 700; color: var(--fg-muted); align-self: flex-start; }
+  .hero h1 .nb { white-space: nowrap; }
+  .hero-sub { font-size: 18px; color: var(--fg-muted); max-width: 46ch; line-height: 1.55; }
+  .hero-fine { font-size: 14px; color: var(--fg-muted); }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+
+  .hero-visual { position: relative; z-index: 1; display: flex; justify-content: center; }
+  .phone {
+    position: relative;
+    width: min(280px, 72vw);
+    aspect-ratio: 9 / 19.5;
+    border-radius: 42px;
+    background: #05060a;
+    padding: 12px;
+    box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--fg) 8%, transparent);
+  }
+  .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 32px; }
+
+  .letter-card {
+    position: absolute;
+    left: -30px;
+    bottom: 40px;
+    width: 200px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  @media (max-width: 900px) { .letter-card { left: 50%; transform: translateX(-50%); bottom: -24px; } }
+  .letter-row { display: flex; align-items: center; gap: 10px; }
+  .letter {
+    width: 44px; height: 44px; flex-shrink: 0;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font: 600 24px/44px "Fredoka", sans-serif;
+    text-align: center;
+  }
+  .letter-title { font-size: 12px; font-weight: 800; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .answer { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; }
+  .answer span:first-child { color: var(--fg-muted); font-weight: 600; }
+  .answer.ensan span:last-child { color: var(--ensan); }
+  .answer.hayawan span:last-child { color: var(--hayawan); }
+  .answer.shay2 span:last-child { color: var(--shay2); }
+
+  /* ---- Sections ---- */
+  section { padding-block: 72px; position: relative; z-index: 1; }
+  .section-head { max-width: 640px; margin-bottom: 40px; display: flex; flex-direction: column; gap: 10px; }
+  .section-head h2 { font-size: clamp(28px, 3.6vw, 38px); font-weight: 600; }
+  .section-head p { color: var(--fg-muted); font-size: 16px; line-height: 1.6; }
+
+  /* How to play */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 800px) { .steps { grid-template-columns: 1fr; } }
+  .step { display: flex; flex-direction: column; gap: 10px; }
+  .step-num { font-size: 16px; font-weight: 600; color: var(--accent); }
+  .step h3 { font-size: 21px; font-weight: 600; }
+  .step p { color: var(--fg-muted); font-size: 15px; line-height: 1.6; }
+
+  /* Categories */
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 800px) { .cats { grid-template-columns: 1fr; } }
+  .cat {
+    background: var(--bg-elev);
+    border: 1px solid color-mix(in srgb, var(--c) 45%, var(--border));
+    border-radius: var(--radius);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cat h3 { font-size: 22px; font-weight: 600; color: var(--c); display: flex; align-items: baseline; gap: 10px; }
+  .cat h3 small { font-family: "Nunito", sans-serif; font-size: 16px; font-weight: 700; color: var(--fg-muted); }
+  .cat p { font-size: 14px; color: var(--fg-muted); line-height: 1.55; }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .feature {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ficon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+  }
+  .ficon svg { width: 20px; height: 20px; }
+  .feature h3 { font-size: 17px; font-weight: 600; }
+  .feature p { font-size: 14px; color: var(--fg-muted); line-height: 1.55; }
+
+  /* Screenshots */
+  .shots { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; }
+  .shot { flex: 0 0 auto; width: 220px; scroll-snap-align: start; }
+  .shot .frame {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    aspect-ratio: 9 / 18.5;
+  }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .shot span { display: block; margin-top: 10px; font-size: 13px; color: var(--fg-muted); text-align: center; }
+
+  /* Play */
+  .downloads { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 800px) { .downloads { grid-template-columns: 1fr; } }
+  .dl {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dl h3 { font-size: 19px; font-weight: 600; }
+  .dl p { font-size: 14px; color: var(--fg-muted); line-height: 1.55; }
+  .dl .btn { margin-top: 6px; align-self: flex-start; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 800; color: var(--fg-muted);
+    border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px;
+    width: fit-content;
+  }
+  .badge strong { color: var(--fg); }
+
+  /* Footer */
+  footer { padding-block: 48px 40px; border-top: 1px solid var(--border); }
+  .foot-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .foot-brand { display: flex; align-items: center; gap: 10px; font-family: "Fredoka", sans-serif; font-weight: 600; }
+  .foot-brand img { width: 28px; height: 28px; border-radius: 8px; }
+  .footlinks { display: flex; gap: 20px; font-size: 14px; color: var(--fg-muted); flex-wrap: wrap; }
+  .footlinks a:hover { color: var(--fg); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav class="top" id="nav">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+    <a class="brand" href="#top">
+      <img src="logo.png" alt="">
+      Ensan 7ayawan Shay2
+    </a>
+    <div class="navlinks">
+      <a href="#how">How to play</a>
+      <a href="#features">Features</a>
+      <a href="#screenshots">Screenshots</a>
+    </div>
+    <div class="navcta">
+      <a class="btn btn-ghost" href="https://github.com/georges-ph/Ensan7ayawanShay2" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-primary" href="#play">Play</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+  <section class="hero" style="padding-top:20px;">
+    <div class="glow"></div>
+    <div class="hero-copy">
+      <span class="eyebrow">Open source · MIT licensed</span>
+      <h1><span class="nb"><span class="c-ensan">Ensan</span> ·</span> <span class="nb"><span class="c-hayawan">7ayawan</span> ·</span> <span class="c-shay2">Shay2</span></h1>
+      <p class="hero-ar" lang="ar" dir="rtl">انسان · حيوان · شيء</p>
+      <p class="hero-sub">The word game you played on paper, now live on everyone's phone. A
+        letter is drawn, then the race is on to name a person, an animal and a
+        thing that start with it.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="https://ensan7ayawanshay2.web.app" target="_blank" rel="noopener">Play in your browser</a>
+        <a class="btn btn-ghost" href="#play">Get the Android app</a>
+      </div>
+      <p class="hero-fine">Android · any browser, phone or computer</p>
+    </div>
+    <div class="hero-visual">
+      <div class="phone">
+        <img src="screenshots/game-room.jpg" alt="A round in the game room">
+      </div>
+      <div class="letter-card" aria-hidden="true">
+        <div class="letter-row">
+          <div class="letter" id="letter">P</div>
+          <div class="letter-title">This round</div>
+        </div>
+        <div id="answers"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="section-head">
+      <span class="eyebrow">How to play</span>
+      <h2>A room, a letter, a race.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01</span>
+        <h3>Open a room</h3>
+        <p>Sign in with Google or an email, create a room and send your friends its
+          short code. They join with it from the app or the browser.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <h3>Race the letter</h3>
+        <p>Press start and a letter is drawn for everyone at once. Fill in a person,
+          an animal and a thing that start with it, then hit stop.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <h3>Score it together</h3>
+        <p>Each answer is worth 0, 5 or 10, as you agree around the table. Totals
+          update live for every player, round after round.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="categories">
+    <div class="section-head">
+      <span class="eyebrow">The three columns</span>
+      <h2>Same game, no paper needed.</h2>
+    </div>
+    <div class="cats">
+      <div class="cat" style="--c: var(--ensan)">
+        <h3>Ensan <small lang="ar">انسان</small></h3>
+        <p>A person: a name, a celebrity, a character.</p>
+      </div>
+      <div class="cat" style="--c: var(--hayawan)">
+        <h3>7ayawan <small lang="ar">حيوان</small></h3>
+        <p>An animal, from the obvious to the obscure.</p>
+      </div>
+      <div class="cat" style="--c: var(--shay2)">
+        <h3>Shay2 <small lang="ar">شيء</small></h3>
+        <p>A thing: anything you can point at.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="section-head">
+      <span class="eyebrow">Features</span>
+      <h2>Made for playing together.</h2>
+    </div>
+    <div class="features" id="features-grid"></div>
+  </section>
+
+  <section id="screenshots">
+    <div class="section-head">
+      <span class="eyebrow">Screenshots</span>
+      <h2>See it in play.</h2>
+    </div>
+    <div class="shots" id="shots"></div>
+  </section>
+
+  <section id="play">
+    <div class="section-head">
+      <span class="eyebrow">Play</span>
+      <h2>In the browser or on Android.</h2>
+      <p>Free, open source, and the same rooms on both: players on the web and on
+        Android can join the same game.</p>
+    </div>
+    <div class="downloads">
+      <div class="dl">
+        <span class="badge">Web · <strong>no install</strong></span>
+        <h3>Browser</h3>
+        <p>Open the game on any phone or computer and sign in. Nothing to
+          download.</p>
+        <a class="btn btn-primary" href="https://ensan7ayawanshay2.web.app" target="_blank" rel="noopener">Play now</a>
+      </div>
+      <div class="dl">
+        <span class="badge">Android · <strong>.apk</strong></span>
+        <h3>Android</h3>
+        <p>Download the APK and install it. You may need to allow "install from
+          unknown sources" once.</p>
+        <a class="btn btn-primary" href="https://github.com/georges-ph/Ensan7ayawanShay2/releases/latest/download/ensan_7ayawan_shay2.apk">Download .apk</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <a class="foot-brand" href="#top"><img src="logo.png" alt="">Ensan 7ayawan Shay2</a>
+      <div class="footlinks">
+        <a href="https://github.com/georges-ph/Ensan7ayawanShay2" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/georges-ph/Ensan7ayawanShay2/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/georges-ph/Ensan7ayawanShay2/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+        <a href="https://github.com/georges-ph/Ensan7ayawanShay2/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var icons = {
+    code: '<rect x="3" y="5" width="18" height="14" rx="3"/><line x1="7" y1="10" x2="11" y2="10"/><line x1="7" y1="14" x2="15" y2="14"/>',
+    bolt: '<polygon points="13,2 4,14 11,14 10,22 20,9 13,9"/>',
+    timer: '<circle cx="12" cy="13" r="8"/><line x1="12" y1="13" x2="12" y2="9"/><line x1="10" y1="2" x2="14" y2="2"/>',
+    dot: '<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><circle cx="19" cy="8" r="2.5" fill="currentColor" stroke="none"/>',
+    key: '<circle cx="8" cy="15" r="4"/><line x1="11" y1="12" x2="21" y2="2"/><line x1="17" y1="6" x2="20" y2="9"/>',
+    moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'
+  };
+  function svg(name) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + icons[name] + '</svg>';
+  }
+  var features = [
+    ['code', 'Invite codes', 'Create a room and share a six-character code. No scrolling through a list of players to find your friends.'],
+    ['bolt', 'Live rounds', 'The letter, every answer and every score reach all players the moment they change.'],
+    ['timer', 'Round timer', 'A synced timer and a rounds counter keep the game moving, the same on every screen.'],
+    ['dot', 'Who is online', 'A green dot shows which players are in the game right now.'],
+    ['key', 'Easy sign in', 'Google or email and password, with a reset link if you forget it.'],
+    ['moon', 'Light and dark', 'Follows your phone, or pick the theme you like in the settings.']
+  ];
+  document.getElementById('features-grid').innerHTML = features.map(function (f) {
+    return '<div class="feature"><div class="ficon">' + svg(f[0]) + '</div><h3>' + f[1] + '</h3><p>' + f[2] + '</p></div>';
+  }).join('');
+
+  var shots = [
+    ['home.jpg', 'Home'],
+    ['game-room.jpg', 'Game room']
+  ];
+  document.getElementById('shots').innerHTML = shots.map(function (s) {
+    return '<div class="shot"><div class="frame"><img src="screenshots/' + s[0] + '" alt="' + s[1] + '" loading="lazy"></div><span>' + s[1] + '</span></div>';
+  }).join('');
+
+  // The floating card cycles through a few rounds, one letter at a time.
+  var rounds = [
+    ['P', 'Peter', 'Parrot', 'Pen'],
+    ['M', 'Maya', 'Monkey', 'Mirror'],
+    ['B', 'Bob', 'Bear', 'Bottle'],
+    ['S', 'Sara', 'Shark', 'Spoon']
+  ];
+  var letter = document.getElementById('letter');
+  var answers = document.getElementById('answers');
+  function show(r) {
+    letter.textContent = r[0];
+    answers.innerHTML =
+      '<div class="answer ensan"><span>Ensan</span><span>' + r[1] + '</span></div>' +
+      '<div class="answer hayawan"><span>7ayawan</span><span>' + r[2] + '</span></div>' +
+      '<div class="answer shay2"><span>Shay2</span><span>' + r[3] + '</span></div>';
+  }
+  var i = 0;
+  show(rounds[0]);
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setInterval(function () { i = (i + 1) % rounds.length; show(rounds[i]); }, 2600);
+  }
+
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function () {
+    nav.classList.toggle('scrolled', window.scrollY > 8);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+rules_version = '2';
+
+// Firestore security rules Ensan7ayawanShay2 expects. All of its data lives
+// under Ensan7ayawanShay2/AppCollections, so these rules can sit next to the
+// rules of other apps in a shared Firebase project.
+//
+// This file is a reference copy and is not deployed from this repository:
+// deploying rules replaces the rules of the whole project.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /Ensan7ayawanShay2/AppCollections {
+      function signedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(uid) {
+        return signedIn() && request.auth.uid == uid;
+      }
+
+      function changedKeys() {
+        return request.resource.data.diff(resource.data).affectedKeys();
+      }
+
+      // Whether the user plays in this room, read from the room document.
+      function isPlayer(roomId) {
+        return signedIn() && request.auth.uid in
+          get(/databases/$(database)/documents/Ensan7ayawanShay2/AppCollections/Rooms/$(roomId))
+            .data.players;
+      }
+
+      // Profiles are read one at a time, by id: the players of a room, and
+      // the creators of the rooms in a list. Nobody can list them, so names,
+      // emails and pictures cannot be collected in bulk.
+      match /Users/{uid} {
+        function isName(name) {
+          return name is string && name.size() <= 200;
+        }
+
+        allow get: if signedIn();
+        // Created at the first sign in, under the id of the account. The
+        // email is optional: the app stores it but never shows it.
+        allow create: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['id', 'name', 'email', 'image'])
+          && request.resource.data.id == uid
+          && isName(request.resource.data.name)
+          && request.resource.data.get('email', '') is string
+          && request.resource.data.get('email', '').size() <= 320
+          && request.resource.data.image is string
+          && request.resource.data.image.size() <= 2000;
+        // Only the name changes afterwards, from the settings.
+        allow update: if isOwner(uid)
+          && changedKeys().hasOnly(['name'])
+          && isName(request.resource.data.name);
+      }
+
+      // A room holds who plays, the letter of the round and every score.
+      // Its id is the time it was created at, in milliseconds. Rooms are
+      // never deleted, and who created one, its code and its creation time
+      // never change.
+      match /Rooms/{roomId} {
+        function isPlayerOf(room) {
+          return signedIn() && request.auth.uid in room.players;
+        }
+
+        function scoresBefore() {
+          return resource.data.get('scores', {});
+        }
+
+        function changedScores() {
+          return request.resource.data.scores.diff(scoresBefore()).affectedKeys();
+        }
+
+        // Someone who is not in the room yet adds themselves, and only
+        // themselves, at the end of the players, with a score of 0.
+        function isJoin() {
+          let uid = request.auth.uid;
+          return !(uid in resource.data.players)
+            && changedKeys().hasOnly(['players', 'scores'])
+            && request.resource.data.players == resource.data.players.concat([uid])
+            && changedScores().hasOnly([uid])
+            && request.resource.data.scores.get(uid, 0) == scoresBefore().get(uid, 0);
+        }
+
+        // A round can only start while none is running, on a single capital
+        // letter.
+        function isStart() {
+          return changedKeys().hasOnly(['started', 'first_start', 'letter', 'round_started_millis'])
+            && resource.data.started == false
+            && request.resource.data.started == true
+            && request.resource.data.first_start == false
+            && request.resource.data.letter is string
+            && request.resource.data.letter.matches('^[A-Z]$')
+            && request.resource.data.round_started_millis is number;
+        }
+
+        // Stopping the running round counts it, once.
+        function isStop() {
+          return changedKeys().hasOnly(['started', 'last_round_seconds', 'rounds_played'])
+            && resource.data.started == true
+            && request.resource.data.started == false
+            && request.resource.data.last_round_seconds is number
+            && request.resource.data.rounds_played == resource.data.get('rounds_played', 0) + 1;
+        }
+
+        // Players score themselves: 0, 5 or 10 for each of the three
+        // answers of a round, so their own score goes up by 30 at most, and
+        // nobody else's moves. 0 is joining again a room they are already in.
+        function isScore() {
+          let uid = request.auth.uid;
+          return changedKeys().hasOnly(['scores'])
+            && changedScores().hasOnly([uid])
+            && (request.resource.data.scores.get(uid, 0) - scoresBefore().get(uid, 0))
+                 in [0, 5, 10, 15, 20, 25, 30];
+        }
+
+        // Players read their room and list the rooms they are in. Anyone
+        // signed in can also look a room up by its code to join it, one at a
+        // time: that part only holds for a query that names a code, so rooms
+        // cannot be listed without knowing theirs.
+        allow get: if isPlayerOf(resource.data);
+        allow list: if isPlayerOf(resource.data)
+          || (signedIn()
+            && request.query.limit <= 1
+            && resource.data.code.matches('^[A-Z0-9]{1,12}$'));
+        // A new room has its creator as the only player, at 0, and no round
+        // played.
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly([
+               'first_start', 'started', 'letter', 'created_by', 'players', 'scores', 'code',
+               'timestamp_millis', 'round_started_millis', 'last_round_seconds', 'rounds_played'])
+          && request.resource.data.created_by == request.auth.uid
+          && request.resource.data.players == [request.auth.uid]
+          && request.resource.data.scores.keys().hasOnly([request.auth.uid])
+          && request.resource.data.scores[request.auth.uid] == 0
+          && request.resource.data.first_start == true
+          && request.resource.data.started == false
+          && request.resource.data.letter is string
+          && request.resource.data.letter.matches('^[A-Z]$')
+          && request.resource.data.code is string
+          && request.resource.data.code.matches('^[A-HJ-NP-Z2-9]{6}$')
+          && request.resource.data.timestamp_millis is int
+          && request.resource.data.timestamp_millis > 0
+          && roomId == string(request.resource.data.timestamp_millis)
+          && request.resource.data.round_started_millis == 0
+          && request.resource.data.last_round_seconds == 0
+          && request.resource.data.rounds_played == 0;
+        allow update: if signedIn()
+          && (isJoin() || (isPlayerOf(resource.data) && (isStart() || isStop() || isScore())));
+
+        // The three answers of a player for the round, in a document named
+        // after them. Only the players of the room read them, and each
+        // writes their own.
+        match /Entries/{uid} {
+          function isAnswer(answer) {
+            return answer is string && answer.size() <= 500;
+          }
+
+          allow read: if isPlayer(roomId);
+          allow create, update: if isOwner(uid)
+            && isPlayer(roomId)
+            && request.resource.data.keys().hasOnly(['ensan', 'hayawan', 'shay2'])
+            && isAnswer(request.resource.data.ensan)
+            && isAnswer(request.resource.data.hayawan)
+            && isAnswer(request.resource.data.shay2);
+        }
+      }
+    }
+  }
+}

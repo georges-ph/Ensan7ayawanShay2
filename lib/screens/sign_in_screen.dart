@@ -25,6 +25,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   bool _busy = false;
   bool _obscurePassword = true;
   String? _error;
+  String? _notice;
 
   @override
   void dispose() {
@@ -37,6 +38,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     setState(() {
       _busy = true;
       _error = null;
+      _notice = null;
     });
 
     try {
@@ -85,6 +87,42 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     _run(
       () => ref.read(authServiceProvider).continueWithEmail(email, password),
     );
+  }
+
+  /// Sends the reset link to the email already typed in the form.
+  Future<void> _forgotPassword() async {
+    final email = _emailController.text.trim();
+    if (!email.contains('@')) {
+      setState(() {
+        _notice = null;
+        _error = 'Enter your email first';
+      });
+      return;
+    }
+
+    setState(() {
+      _busy = true;
+      _error = null;
+      _notice = null;
+    });
+    try {
+      await ref.read(authServiceProvider).sendPasswordResetEmail(email);
+      if (mounted) {
+        setState(() {
+          _notice =
+              'If this email has an account, a link to reset the '
+              'password is on its way';
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) setState(() => _error = _messageFor(e));
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Could not send the email, try again');
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   void _signInWithGoogle() {
@@ -181,6 +219,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         return null;
                       },
                     ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _busy ? null : _forgotPassword,
+                        child: const Text('Forgot password?'),
+                      ),
+                    ),
+                    if (_notice != null) ...[
+                      const SizedBox(height: 4),
+                      Text(_notice!, textAlign: TextAlign.center),
+                    ],
                     if (_error != null) ...[
                       const SizedBox(height: 12),
                       Text(

@@ -88,6 +88,12 @@ class AuthService {
     return email.split('@').first;
   }
 
+  /// Emails a link to choose a new password. Completes normally whether or
+  /// not the email has an account, so it never reveals who is registered.
+  Future<void> sendPasswordResetEmail(String email) {
+    return _auth.sendPasswordResetEmail(email: email);
+  }
+
   Future<void> signOut() async {
     if (!kIsWeb) {
       // So the next sign-in shows the account picker again instead of
